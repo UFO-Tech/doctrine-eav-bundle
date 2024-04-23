@@ -1,0 +1,35 @@
+{
+    "name": "ufo-tech/doctrine-eav-bundle",
+    "description": "The DoctrineEAVBundle provides a seamless integration of the Entity-Attribute-Value (EAV) model with Doctrine ORM within the Symfony framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Maystrenko",
+            "email": "ashterix69@gmail.com"
+        }
+    ],
+    "type" : "symfony-bundle",
+    "homepage": "https://github.com/ufo-tech/doctrine-eav-bundle",
+    "keywords" : ["ufo", "symfony", "doctrine", "bundle", "eav", "entity","attribute","value","entity-attribute-value"],
+    "require" : {
+        "php": ">=8.1",
+        "symfony/framework-bundle": ">=6",
+        "symfony/console": "6.*",
+        "symfony/http-kernel": "6.*",
+        "doctrine/annotations": "*",
+        "doctrine/doctrine-bundle": "^2.8",
+        "doctrine/doctrine-migrations-bundle": "^3.2",
+        "doctrine/orm": "^2.14"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "Ufo\\EAV\\" : "src/"
+        }
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
+        }
+    }
+}
