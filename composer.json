@@ -13,9 +13,9 @@
     "keywords" : ["ufo", "symfony", "doctrine", "bundle", "eav", "entity","attribute","value","entity-attribute-value"],
     "require" : {
         "php": ">=8.1",
-        "symfony/framework-bundle": ">=6",
-        "symfony/console": "6.*",
-        "symfony/http-kernel": "6.*",
+        "symfony/framework-bundle": "^6",
+        "symfony/console": "^6",
+        "symfony/http-kernel": "^6",
         "doctrine/annotations": "*",
         "doctrine/doctrine-bundle": "^2.8",
         "doctrine/doctrine-migrations-bundle": "^3.2",
@@ -24,6 +24,13 @@
     "autoload" : {
         "psr-4" : {
             "Ufo\\EAV\\" : "src/"
+        }
+    },
+    "extra" : {
+        "symfony": {
+            "endpoint": [
+                "https://api.github.com/repos/ufo-tech/recipes/contents/index.json?ref=main"
+            ]
         }
     },
     "scripts": {

@@ -36,7 +36,7 @@ class UfoEavExtension extends Extension
             return;
         }
 
-        $def = $container->getDefinition('doctrine.orm.default_entity_manager');
+        $def = $container->getDefinition('doctrine.orm.mappings');
 
         // Отримання існуючих мапінгів
         $mappings = $def->getArgument(1) ?? [];
