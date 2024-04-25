@@ -11,6 +11,10 @@ services:
             - '../src/UfoEavExtension.php'
             - '../src/Entity/'
 
-    Ufo\EAV\EventsListeners\RemoveListener:
+    Ufo\EAV\EventsSubscribers\RemoveSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    Ufo\EAV\EventsSubscribers\SchemaGenerateSubscriber:
         tags:
             - { name: doctrine.event_subscriber }
