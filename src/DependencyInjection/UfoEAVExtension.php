@@ -6,13 +6,14 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
 /**
  * This is the class that loads and manages your bundle configuration.
  *
  * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
  */
-class UfoEavExtension extends Extension
+class UfoEAVExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * @var ContainerBuilder
@@ -30,27 +31,24 @@ class UfoEavExtension extends Extension
         $loader->load('services.yaml');
     }
 
-    public function process(ContainerBuilder $container): void
+    public function prepend(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('doctrine.orm.default_entity_manager')) {
-            return;
-        }
-
-        $def = $container->getDefinition('doctrine.orm.mappings');
-
-        // Отримання існуючих мапінгів
-        $mappings = $def->getArgument(1) ?? [];
-
-        // Додавання нових мапінгів для EAV сутностей
-        $mappings['EAV'] = [
-            'is_bundle' => false,
-            'type' => 'annotation',
-            'prefix' => 'Ufo\EAV\Entity',
-            'dir' => '%kernel.project_dir%/vendor/ufo-tech/doctrine-eav-bundle/src/Entity',
-            'alias' => 'EAV'
-        ];
-
-        $def->replaceArgument(1, $mappings);
+        $dir = __DIR__ . '/../Entity';
+        $container->loadFromExtension('doctrine', [
+            'dbal' => [
+                'schema_filter' => '~^(?!.*_view$)~'
+            ],
+            'orm' => [
+                'mappings' => [
+                    'EAV' => [
+                        'is_bundle' => false,
+                        'prefix' => 'Ufo\EAV\Entity',
+                        'dir' => $dir,
+                        'alias' => 'EAV'
+                    ]
+                ]
+            ],
+        ]);
     }
 
     public function getAlias(): string

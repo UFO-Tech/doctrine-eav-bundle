@@ -10,11 +10,13 @@ use Ufo\EAV\Interfaces\IHaveParamsAccess;
 use Ufo\EAV\Interfaces\IHaveValuesAccess;
 use Ufo\EAV\Traits\SpecValuesAccessors;
 
-#[ORM\Table(name: 'eav_spec')]
+#[ORM\Table(name: Spec::TABLE_NAME)]
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 class Spec implements IHaveParamsAccess, IHaveValuesAccess
 {
+    const TABLE_NAME = 'eav_spec';
+    
     use SpecValuesAccessors;
 
     const DEFAULT = 'noname';

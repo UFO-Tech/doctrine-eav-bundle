@@ -1,6 +1,6 @@
 <?php
 
-namespace Ufo\EAV\EventsListeners;
+namespace Ufo\EAV\EventsSubscribers;
 
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;
@@ -8,7 +8,7 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Value;
 
-class RemoveListener implements EventSubscriber
+class RemoveSubscriber implements EventSubscriber
 {
     /**
      * @var object[]

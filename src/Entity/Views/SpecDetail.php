@@ -10,9 +10,10 @@ use Ufo\EAV\Repositories\ViewSpecDetailRepository;
 
 
 #[ORM\Entity(repositoryClass:ViewSpecDetailRepository::class, readOnly:true)]
-#[ORM\Table(name:"eav_spec_details_view")]
+#[ORM\Table(name: SpecDetail::VIEW_NAME)]
 class SpecDetail implements IHaveSpecAccess
 {
+    const VIEW_NAME = 'eav_spec_details_view';
 
     #[ORM\Id]
     #[ORM\Column(type: "integer")]
