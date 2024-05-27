@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Value;
-use Ufo\EAV\EventsListeners\RemoveListener;
+use Ufo\EAV\EventsSubscribers\RemoveSubscriber;
 
 trait SpecValuesAccessors
 {
@@ -32,7 +32,7 @@ trait SpecValuesAccessors
         $values->filter(function (Value $val) use ($value) {
             if ($val->getParam() === $value->getParam()) {
                 $this->removeValue($val);
-                RemoveListener::add($val);
+                RemoveSubscriber::add($val);
             }
         });
         $values->add($value);
