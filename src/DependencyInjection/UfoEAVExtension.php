@@ -46,6 +46,12 @@ class UfoEAVExtension extends Extension implements PrependExtensionInterface
                         'dir' => $dir,
                         'alias' => 'EAV'
                     ]
+                ],
+                'dql' => [
+                    'string_functions' => [
+                        'JSON_EXTRACT' => 'Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract',
+                        'JSON_SEARCH' => 'Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch',
+                    ]
                 ]
             ],
         ]);
