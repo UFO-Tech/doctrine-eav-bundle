@@ -27,6 +27,17 @@ trait SpecValuesAccessors
         return $values;
     }
 
+    public function getValue(string $paramTag)
+    {
+        $value = null;
+        $this->getValues()->filter(function (Value $val) use ($paramTag, &$value) {
+            if ($val->getParam()->getTag() === $paramTag) {
+                $value = $val->getContent();
+            }
+        });
+        return $value;
+    }
+
     public function setValue(Value $value, bool $replace = true): static
     {
         $values = $this->getValues();
