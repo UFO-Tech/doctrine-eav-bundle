@@ -1,15 +1,13 @@
 <?php
 
-namespace Ufo\EAV\Entity\Repository;
+namespace Ufo\EAV\Repositories;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
 use Ufo\EAV\Entity\Views\SpecDetailsJson;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method SpecDetailsJson|null find($id, $lockMode = null, $lockVersion = null)

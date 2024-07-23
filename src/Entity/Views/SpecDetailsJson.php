@@ -5,10 +5,9 @@ namespace Ufo\EAV\Entity\Views;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ufo\EAV\Entity\Repository\SpecDetailsJsonRepository;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Interfaces\IHaveSpecAccess;
-use Ufo\EAV\Repositories\ViewSpecDetailRepository;
+use Ufo\EAV\Repositories\SpecDetailsJsonRepository;
 
 
 #[ORM\Entity(repositoryClass: SpecDetailsJsonRepository::class, readOnly: true)]
