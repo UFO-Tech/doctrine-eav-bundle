@@ -61,150 +61,133 @@ class CreateViewMigrationCommand extends Command
         $specDetailJson = SpecDetailsJson::VIEW_NAME;
         $commonParams = CommonParamsFilter::VIEW_NAME;
         return "\$this->addSql(\"CREATE VIEW $specDetail AS
-            WITH RECURSIVE SpecHierarchy AS (
+             WITH RECURSIVE SpecHierarchy AS (
                 SELECT
                     s.id,
                     s.parent_id,
                     s.name
                 FROM
                     eav_spec s
-            
                 UNION ALL
-            
                 SELECT
                     s.id,
                     s.parent_id,
                     s.name
                 FROM
                     eav_spec s
-                        INNER JOIN SpecHierarchy sh ON s.id = sh.parent_id
+                    INNER JOIN SpecHierarchy sh ON s.parent_id = sh.id
             ),
-                           SpecValues AS (
-                               SELECT
-                                   sh.id AS spec_id,
-                                   p.tag AS param_tag,
-                                   p.name AS param_name,
-                                   v.value_type,
-                                   CASE
-                                       WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
-                                       WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
-                                       WHEN v.value_type = 'boolean' THEN v.bool_val
-                                       WHEN v.value_type = 'options' THEN (SELECT GROUP_CONCAT(o.value SEPARATOR ', ') FROM eav_value_options vo
-                                                                                                                                JOIN eav_options o ON vo.param_option_id = o.id
-                                                                           WHERE vo.value_option_id = v.id)
-                                       ELSE NULL
-                                       END AS value
-                               FROM
-                                   SpecHierarchy sh
-                                       LEFT JOIN eav_specs_values sv ON sh.id = sv.spec_id
-                                       LEFT JOIN eav_values v ON sv.value_id = v.id
-                                       LEFT JOIN eav_params p ON v.param = p.tag
-                           ),
-                           ParentValues AS (
-                               SELECT
-                                   sh.parent_id AS spec_id,
-                                   p.tag AS param_tag,
-                                   p.name AS param_name,
-                                   v.value_type,
-                                   CASE
-                                       WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
-                                       WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
-                                       WHEN v.value_type = 'boolean' THEN v.bool_val
-                                       WHEN v.value_type = 'options' THEN (SELECT GROUP_CONCAT(o.value SEPARATOR ', ') FROM eav_value_options vo
-                                                                                                                                JOIN eav_options o ON vo.param_option_id = o.id
-                                                                           WHERE vo.value_option_id = v.id)
-                                       ELSE NULL
-                                       END AS value
-                               FROM
-                                   SpecHierarchy sh
-                                       LEFT JOIN eav_specs_values sv ON sh.parent_id = sv.spec_id
-                                       LEFT JOIN eav_values v ON sv.value_id = v.id
-                                       LEFT JOIN eav_params p ON v.param = p.tag
-                           )
+            SpecValues AS (
+                SELECT
+                    sh.id AS spec_id,
+                    p.tag AS param_tag,
+                    p.name AS param_name,
+                    v.value_type,
+                    CASE
+                        WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
+                        WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
+                        WHEN v.value_type = 'boolean' THEN v.bool_val
+                        WHEN v.value_type = 'options' THEN (SELECT GROUP_CONCAT(o.value SEPARATOR ', ') FROM eav_value_options vo
+                                                                JOIN eav_options o ON vo.param_option_id = o.id
+                                                            WHERE vo.value_option_id = v.id)
+                        ELSE NULL
+                    END AS value
+                FROM
+                    SpecHierarchy sh
+                    LEFT JOIN eav_specs_values sv ON sh.id = sv.spec_id
+                    LEFT JOIN eav_values v ON sv.value_id = v.id
+                    LEFT JOIN eav_params p ON v.param = p.tag
+            ),
+            ParentValues AS (
+                SELECT
+                    sh.id AS spec_id,
+                    p.tag AS param_tag,
+                    p.name AS param_name,
+                    v.value_type,
+                    CASE
+                        WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
+                        WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
+                        WHEN v.value_type = 'boolean' THEN v.bool_val
+                        WHEN v.value_type = 'options' THEN (SELECT GROUP_CONCAT(o.value SEPARATOR ', ') FROM eav_value_options vo
+                                                                JOIN eav_options o ON vo.param_option_id = o.id
+                                                            WHERE vo.value_option_id = v.id)
+                        ELSE NULL
+                    END AS value
+                FROM
+                    SpecHierarchy sh
+                    LEFT JOIN eav_specs_values sv ON sh.parent_id = sv.spec_id
+                    LEFT JOIN eav_values v ON sv.value_id = v.id
+                    LEFT JOIN eav_params p ON v.param = p.tag
+            )
             SELECT DISTINCT
                 MD5(CONCAT(sh.id, '-', p.tag, '-', COALESCE(v.value, pv.value))) AS unique_id,
                 sh.id AS spec_id,
                 sh.name AS spec_name,
                 p.name AS param_name,
                 p.tag AS param_tag,
+                p.filtered AS param_filtered,
                 COALESCE(v.value_type, pv.value_type) AS value_type,
                 COALESCE(v.value, pv.value) AS value
             FROM
                 SpecHierarchy sh
-                    LEFT JOIN eav_params p ON TRUE
-                    LEFT JOIN SpecValues v ON sh.id = v.spec_id AND p.tag = v.param_tag
-                    LEFT JOIN ParentValues pv ON sh.parent_id = pv.spec_id AND p.tag = pv.param_tag
-            WHERE
-                pv.param_tag IS NOT NULL
+                LEFT JOIN eav_params p ON TRUE
+                LEFT JOIN SpecValues v ON sh.id = v.spec_id AND p.tag = v.param_tag
+                LEFT JOIN ParentValues pv ON sh.id = pv.spec_id AND p.tag = pv.param_tag
+             WHERE
+                COALESCE(v.value_type, pv.value_type) IS NOT NULL
             ORDER BY
-                spec_id
+                sh.id
             ;\");
         
         \$this->addSql(\"CREATE VIEW $commonParams AS
             SELECT
-                MD5(CONCAT(e.param_tag, '-', e.value)) AS unique_id,
-                e.param_tag,
-                e.param_name,
-                e.value,
-                e.value_type,
-                e.spec_count,
-                e.total_count
+                MD5(CONCAT(s.param_tag, '-', CAST(s.value AS CHAR))) AS unique_id,
+                s.param_tag,
+                s.param_name,
+                CAST(s.value AS CHAR) AS value,
+                s.value_type,
+                s.spec_count,
+                s.total_count
             FROM (
-                 SELECT
-                     e.param_tag,
-                     e.param_name,
-                     e.value,
-                     e.value_type,
-                     COUNT(DISTINCT e.spec_id) AS spec_count,
-                     SUM(COUNT(DISTINCT e.spec_id)) OVER (PARTITION BY e.param_tag) AS total_count
-                 FROM (
-                      SELECT
-                          s.id AS spec_id,
-                          p.tag AS param_tag,
-                          p.name AS param_name,
-                          v.value_type as value_type,
-                          CASE
-                              WHEN v.value_type = 'number' THEN CAST(v.num_val / POWER(10, v.num_val_scale) AS CHAR)
-                              WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
-                              WHEN v.value_type = 'boolean' THEN CAST(v.bool_val AS CHAR)
-                              WHEN v.value_type = 'options' THEN o.value
-                              ELSE NULL
-                              END AS value
-                      FROM
-                          eav_spec s
-                              LEFT JOIN eav_specs_values sv ON s.id = sv.spec_id
-                              LEFT JOIN eav_values v ON sv.value_id = v.id
-                              LEFT JOIN eav_params p ON v.param = p.tag
-                              LEFT JOIN eav_value_options vo ON vo.value_option_id = v.id
-                              LEFT JOIN eav_options o ON vo.param_option_id = o.id
-                      WHERE v.value_type != 'file'
-                  ) AS e
-                 GROUP BY
-                     e.param_tag, e.param_name, e.value, e.value_type
-                 ) AS e
-            WHERE e.total_count >= (SELECT COUNT(DISTINCT id) FROM eav_spec where parent_id is not null)
-            ORDER BY e.param_tag;\"
-        );
+                SELECT
+                    s.param_tag,
+                    s.param_name,
+                    CAST(s.value AS CHAR) AS value,
+                    s.value_type,
+                    COUNT(DISTINCT s.spec_id) AS spec_count,
+                    SUM(COUNT(DISTINCT s.spec_id)) OVER (PARTITION BY s.param_tag) AS total_count
+                FROM
+                    eav_spec_details_view s
+                LEFT JOIN eav_params p ON s.param_tag = p.tag
+                WHERE
+                    s.value_type != 'file'
+                    AND p.filtered = TRUE
+                GROUP BY
+                    s.param_tag, s.param_name, s.value, s.value_type
+            ) AS s
+            WHERE
+                s.total_count >= (SELECT COUNT(DISTINCT id) FROM eav_spec)
+            ORDER BY s.param_tag;
+        \");
 
         \$this->addSql(\"CREATE VIEW $specDetailJson AS
-            SELECT
-                s.id AS spec_id,
-                s.name AS spec_name,
+            SELECT 
+                spec_id,
+                spec_name,
                 JSON_OBJECTAGG(
-                    p.tag,
+                    param_tag, 
                     JSON_OBJECT(
-                        'name', p.name,
-                        'tag', p.tag,
-                        'value', sd.value
+                        'tag', param_tag,
+                        'name', param_name,
+                        'value', value
                     )
                 ) AS spec_values
-            FROM
-                eav_spec s
-            LEFT JOIN eav_specs_values sv ON s.id = sv.spec_id
-            LEFT JOIN eav_values v ON sv.value_id = v.id
-            LEFT JOIN eav_params p ON v.param = p.tag
-            LEFT JOIN eav_spec_details_view sd ON s.id = sd.spec_id AND p.tag = sd.param_tag
-            GROUP BY s.id, s.name;
+            FROM 
+                eav_spec_details_view
+            GROUP BY 
+                spec_id, spec_name
+            ORDER BY 
+                spec_id;
         \");";
     }
 
