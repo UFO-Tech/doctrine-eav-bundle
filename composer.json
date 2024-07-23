@@ -20,7 +20,8 @@
         "doctrine/annotations": "*",
         "doctrine/doctrine-bundle": ">=2.8",
         "doctrine/doctrine-migrations-bundle": ">=3.2",
-        "doctrine/orm": ">=2.0"
+        "doctrine/orm": ">=2.0",
+        "scienta/doctrine-json-functions": "^6.1"
     },
     "autoload" : {
         "psr-4" : {

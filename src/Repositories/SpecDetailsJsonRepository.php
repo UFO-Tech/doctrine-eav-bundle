@@ -44,13 +44,11 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
 
     protected function getQuery(string $paramTag, string|int|bool $value): Query
     {
-        $qb = $this->createQueryBuilder('p');
-        $jsonExtract = sprintf('JSON_EXTRACT(p.spec_values, \'$.%s.value\')', $paramTag);
-
-        $qb->andWhere($qb->expr()->eq($jsonExtract, ':value'))
-           ->setParameter('value', $value, ParameterType::STRING);
-
-        return $qb->getQuery();
+        return $this->createQueryBuilder('p')
+            ->where("JSON_EXTRACT(p.specValues, :jsonPath) = :value ")
+            ->setParameter('jsonPath', '$.'.$paramTag.'.value')
+            ->setParameter('value', $value)
+            ->getQuery();
     }
 
 }

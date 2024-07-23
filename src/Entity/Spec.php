@@ -115,9 +115,9 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     }
 
     /**
-     * @return Category|null
+     * @return Spec|null
      */
-    public function getParent(): ?Category
+    public function getParent(): ?Spec
     {
         return $this->parent;
     }
