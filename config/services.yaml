@@ -13,8 +13,13 @@ services:
 
     Ufo\EAV\EventsSubscribers\RemoveSubscriber:
         tags:
-            - { name: doctrine.event_subscriber }
+            - { name: doctrine.event_subscriber, connection: default }
 
     Ufo\EAV\EventsSubscribers\SchemaGenerateSubscriber:
         tags:
-            - { name: doctrine.event_subscriber }
+            - { name: doctrine.event_listener, event: postGenerateSchema }
+    
+    Ufo\EAV\Fillers\Interfaces\IFiller $allSpecsFiller: '@Ufo\EAV\Fillers\AllSpecsFiller'
+    Ufo\EAV\Fillers\Interfaces\IFiller $filteredSpecsFiller: '@Ufo\EAV\Fillers\FilteredSpecsFiller'
+    
+ 

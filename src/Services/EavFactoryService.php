@@ -5,8 +5,6 @@ namespace Ufo\EAV\Services;
 use Ufo\EAV\Entity\Option;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Value;
-use Ufo\EAV\Entity\Views\SpecDetail;
-use Ufo\EAV\Entity\Views\SpecDetailsJson;
 use Ufo\EAV\Exceptions\EavNotFoundException;
 use Ufo\EAV\Traits\EavRepositoryAccess;
 
@@ -14,12 +12,17 @@ class EavFactoryService
 {
     use EavRepositoryAccess;
 
-    public function getParam(string $tag): Param
+    public function getParam(
+        string $tag,
+        ?string $name = null,
+        bool $filtered = true,
+        array $jsonSchema = []
+    ): Param
     {
         try {
             $param = $this->paramRepo->get($tag);
         } catch (EavNotFoundException) {
-            $param = new Param($tag);
+            $param = new Param($tag, $name, $filtered, $jsonSchema);
             $this->em->persist($param);
         }
         return $param;
@@ -46,11 +49,5 @@ class EavFactoryService
         return $this->getOption($this->getParam($param), $value);
     }
 
-    /**
-     * @return SpecDetail[]
-     */
-    public function getAllSpecDetail(): array
-    {
-        return $this->em->getRepository(SpecDetailsJson::class)->findAll();
-    }
+
 }

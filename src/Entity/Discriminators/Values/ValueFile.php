@@ -2,6 +2,7 @@
 
 namespace Ufo\EAV\Entity\Discriminators\Values;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Ufo\EAV\Entity\Param;
@@ -14,23 +15,23 @@ class ValueFile extends Value
     const T_LOCAL = 1;
     const T_CLOUD = 2;
 
-    #[ORM\Column(name: "file_val_name", type: "string")]
+    #[ORM\Column(name: "file_val_name", type: Types::STRING)]
     protected string $filename;
 
-    #[ORM\Column(name: "file_val_mime_type", type: "string")]
+    #[ORM\Column(name: "file_val_mime_type", type: Types::STRING)]
     protected string $mimeType;
 
 
-    #[ORM\Column(name: "file_val_size", type: "string")]
+    #[ORM\Column(name: "file_val_size", type: Types::INTEGER)]
     protected int $size;
 
     public function __construct(
         Param            $param,
         UploadedFile     $file,
-        #[ORM\Column(name: "file_val_url", type: "string")]
+        #[ORM\Column(name: "file_val_url", type: Types::STRING)]
         protected string $url,
 
-        #[ORM\Column(name: "file_val_storage", type: "integer")]
+        #[ORM\Column(name: "file_val_storage", type: Types::INTEGER)]
         protected int    $storageType = self::T_LOCAL
     )
     {

@@ -16,7 +16,7 @@ class OptionRepository extends EntityRepository
     {
         if (!$option = $this->findOneBy(['param' => $param, 'value' => $value])) {
             try {
-                $option = $this->fromIdentityMap( $param,  $value);
+                $option = $this->fromIdentityMap($param,  $value);
             } catch (\Throwable) {
                 throw new EavNotFoundException("Option '{$value}' for param '{$param->getTag()}' is not found");
             }

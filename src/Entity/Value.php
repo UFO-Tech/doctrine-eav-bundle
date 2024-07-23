@@ -8,11 +8,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Utils\DiscriminatorMapper;
 use Ufo\EAV\Utils\Types;
 use Ufo\EAV\Utils\ValueEntityMap;
+use Doctrine\DBAL\Types\Types as EntityTypes;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'eav_values')]
+#[ORM\Index(columns: ["id", "param", "value_type"], name: "value_id_param_value_type_idx")]
 #[ORM\InheritanceType("SINGLE_TABLE")]
-#[ORM\DiscriminatorColumn(name: "value_type", type: 'string', enumType: Types::class)]
+#[ORM\DiscriminatorColumn(name: "value_type", type: EntityTypes::STRING, enumType: Types::class)]
 #[ORM\DiscriminatorMap([
     Types::BOOLEAN->value   => ValueEntityMap::BOOLEAN->value,
     Types::FILE->value      => ValueEntityMap::FILE->value,
@@ -24,17 +26,17 @@ abstract class Value
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: EntityTypes::INTEGER)]
     protected int $id;
 
-    #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "values", cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "values", cascade: ['persist'], fetch: 'LAZY')]
     protected Collection $specs;
 
     /**
      * @param Param $param
      */
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: Param::class, cascade: ['persist'], inversedBy: "values")]
+        #[ORM\ManyToOne(targetEntity: Param::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "values")]
         #[ORM\JoinColumn(name: "param", referencedColumnName: "tag", onDelete: 'CASCADE')]
         protected Param $param
     )

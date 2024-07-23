@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Entity\Views;
 
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Interfaces\IHaveSpecAccess;
@@ -16,16 +17,16 @@ class SpecDetailsJson implements IHaveSpecAccess
     const VIEW_NAME = 'eav_spec_details_json_view';
 
     #[ORM\Id]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: Types::INTEGER)]
     protected int $specId;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: Types::STRING)]
     protected string $specName;
 
-    #[ORM\Column(type: "json")]
+    #[ORM\Column(type: Types::JSON)]
     protected array $specValues;
 
-    #[ORM\ManyToOne(targetEntity: Spec::class,fetch: 'LAZY')]
+    #[ORM\ManyToOne(targetEntity: Spec::class, fetch: 'LAZY')]
     protected Spec $spec;
 
     /**

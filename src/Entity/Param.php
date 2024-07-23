@@ -4,31 +4,33 @@ namespace Ufo\EAV\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Repositories\ParamRepository;
 
 #[ORM\Entity(repositoryClass: ParamRepository::class)]
 #[ORM\Table(name: 'eav_params')]
+#[ORM\Index(columns: ["tag"], name: "param_tag_idx")]
 class Param
 {
-    #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "params", cascade: ["persist"])]
+    #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "params", cascade: ["persist"], fetch: 'LAZY')]
     protected Collection $specs;
 
-    #[ORM\OneToMany(mappedBy: "param", targetEntity: Value::class, cascade: ["persist"])]
+    #[ORM\OneToMany(mappedBy: "param", targetEntity: Value::class, cascade: ["persist"], fetch: 'LAZY')]
     protected Collection $values;
 
     public function __construct(
         #[ORM\Id]
-        #[ORM\Column(type: "string", length: 255, unique: true, nullable: false)]
+        #[ORM\Column(type: Types::STRING, length: 255, unique: true, nullable: false)]
         protected string $tag,
 
-        #[ORM\Column(type: "string", length: 255, nullable: true)]
+        #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
         protected ?string $name = null,
 
-        #[ORM\Column(type: "boolean")]
+        #[ORM\Column(type: Types::BOOLEAN)]
         protected bool $filtered = true,
 
-        #[ORM\Column(type: "json", nullable: true)]
+        #[ORM\Column(type: Types::JSON, nullable: true)]
         protected array $jsonSchema = []
     )
     {

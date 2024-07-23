@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Traits;
 
 use Doctrine\Common\Collections\Collection;
+use Throwable;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Value;
@@ -20,19 +21,25 @@ trait SpecValuesAccessors
     {
         try {
             $values = $this->values;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $values = $this->state->getValues();
         }
         return $values;
     }
 
-    public function setValue(Value $value): static
+    public function setValue(Value $value, bool $replace = true): static
     {
         $values = $this->getValues();
-        $values->filter(function (Value $val) use ($value) {
+        $values->filter(function (Value $val) use ($value, $replace) {
             if ($val->getParam() === $value->getParam()) {
-                $this->removeValue($val);
-                RemoveSubscriber::add($val);
+                if ($replace) {
+                    $this->removeValue($val);
+                    RemoveSubscriber::add($val);
+                } else {
+                    $child = $this->state->addChildren();
+                    $child->getValues()->add($val);
+                    $child->addParam($val->getParam());
+                }
             }
         });
         $values->add($value);
@@ -53,7 +60,7 @@ trait SpecValuesAccessors
     {
         try {
             $params = $this->params;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $params = $this->state->getParams();
         }
         return $params;

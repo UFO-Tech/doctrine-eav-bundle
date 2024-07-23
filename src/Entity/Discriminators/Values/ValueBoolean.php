@@ -2,6 +2,7 @@
 
 namespace Ufo\EAV\Entity\Discriminators\Values;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Value;
@@ -13,7 +14,7 @@ class ValueBoolean extends Value
 
     public function __construct(
         Param $param,
-        #[ORM\Column(name: "bool_val", type: "boolean")]
+        #[ORM\Column(name: "bool_val", type: Types::BOOLEAN)]
         protected bool $content
     )
     {

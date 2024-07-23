@@ -36,15 +36,15 @@ class ParamRepository extends EntityRepository
     public function getCommonParamsByEavIds(array $eavIds): array
     {
         $qb = $this->createQueryBuilder('p');
-        // Початковий запит для вибору всіх параметрів, які належать специфікаціям продуктів
         $qb->select('p')
             ->distinct(true)
             ->join('p.specs', 's')
             ->where($qb->expr()->in('s.eav', $eavIds))
             ->groupBy('p.tag')
             ->having('COUNT(DISTINCT s.eav) = :count')
-            ->setParameter('count', count($eavIds));
+            ->setParameter('count', count($eavIds))
 
+        ;
         return $qb->getQuery()->getResult();
     }
 

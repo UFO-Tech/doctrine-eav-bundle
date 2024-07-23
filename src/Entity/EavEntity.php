@@ -20,12 +20,12 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     #[ORM\Column(type: "integer")]
     protected int $id;
 
-    #[ORM\OneToMany(mappedBy: "eav", targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'LAZY')]
+    #[ORM\OneToMany(mappedBy: "eav", targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'EAGER')]
     protected Collection $specifications;
 
-    #[ORM\OneToOne(targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'LAZY')]
+    #[ORM\OneToOne(targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'main_spec_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    protected Spec $mainSpecification;
+    protected ?Spec $mainSpecification = null;
 
     public function __construct()
     {
@@ -60,9 +60,9 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     }
 
     /**
-     * @return Spec
+     * @return ?Spec
      */
-    public function getMainSpecification(): Spec
+    public function getMainSpecification(): ?Spec
     {
         return $this->mainSpecification;
     }

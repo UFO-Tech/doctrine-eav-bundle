@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Entity\Discriminators\Values;
 
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Value;
@@ -10,10 +11,10 @@ use Ufo\EAV\Entity\Value;
 #[ORM\Entity]
 class ValueNumber extends Value
 {
-    #[ORM\Column(name: "num_val", type: "integer")]
+    #[ORM\Column(name: "num_val", type: Types::INTEGER)]
     protected int $content = 0;
 
-    #[ORM\Column(name: "num_val_scale", type: "integer")]
+    #[ORM\Column(name: "num_val_scale", type: Types::INTEGER)]
     protected int $scale = 0;
 
     public function __construct(Param $param, int|float $number = 0)

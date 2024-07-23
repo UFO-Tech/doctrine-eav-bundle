@@ -8,6 +8,7 @@ use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\EntityManagerInterface;
 use Ufo\EAV\Command\CreateViewMigrationCommand;
 use Ufo\EAV\Entity\Spec;
+use Ufo\EAV\Entity\Views\CommonParamsFilter;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Entity\Views\SpecDetailsJson;
 
@@ -16,17 +17,18 @@ class SchemaGenerateSubscriber implements EventSubscriber
     const VIEWS_FOR_CREATE = [
         SpecDetail::VIEW_NAME,
         SpecDetailsJson::VIEW_NAME,
+        CommonParamsFilter::VIEW_NAME,
         self::TABLE_BLOCKER
     ];
     
     const TABLE_BLOCKER = Spec::TABLE_NAME;
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return ['postGenerateSchema'];
     }
 
-    public function postGenerateSchema(GenerateSchemaEventArgs $args)
+    public function postGenerateSchema(GenerateSchemaEventArgs $args): void
     {
         $schema = $args->getSchema();
 

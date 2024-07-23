@@ -2,6 +2,7 @@
 
 namespace Ufo\EAV\Entity\Discriminators\Values;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Entity\Value;
@@ -11,10 +12,10 @@ class ValueString extends Value
 {
     private const MAX_SHORT_CONTENT_LENGTH = 255;  // Define your length limit for VARCHAR column
 
-    #[ORM\Column(name: "str_val_short", type: "string", length: ValueString::MAX_SHORT_CONTENT_LENGTH, nullable: true)]
+    #[ORM\Column(name: "str_val_short", type: Types::STRING, length: ValueString::MAX_SHORT_CONTENT_LENGTH, nullable: true)]
     protected ?string $contentShort = null;
 
-    #[ORM\Column(name: "str_val_long", type: "text", nullable: true)]
+    #[ORM\Column(name: "str_val_long", type: Types::TEXT, nullable: true)]
     protected ?string $contentLong = null;
 
     public function __construct(Param $param, string $content)

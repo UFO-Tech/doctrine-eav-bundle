@@ -2,17 +2,19 @@
 
 namespace Ufo\EAV\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Repositories\OptionRepository;
 
 #[ORM\Entity(repositoryClass: OptionRepository::class)]
 #[ORM\Table(name: 'eav_options')]
+#[ORM\Index(columns: ["id"], name: "option_id_idx")]
 #[ORM\UniqueConstraint(name: "param_option_unique", columns: ["param", "value"])]
 class Option
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: Types::INTEGER)]
     protected int $id;
 
     public function __construct(
@@ -20,7 +22,7 @@ class Option
         #[ORM\JoinColumn(name: "param", referencedColumnName: "tag", onDelete: 'CASCADE')]
         protected Param $param,
 
-        #[ORM\Column(type: "string", length: 255)]
+        #[ORM\Column(type: Types::STRING, length: 255)]
         protected string $value
     )
     {

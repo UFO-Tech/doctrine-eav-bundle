@@ -1,0 +1,65 @@
+<?php
+
+namespace Ufo\EAV\Fillers;
+
+use AllowDynamicProperties;
+use Doctrine\ORM\EntityManagerInterface;
+use Ufo\EAV\Fillers\Interfaces\IFiller;
+use Ufo\EAV\Filters\Abstraction\ICommonFilter;
+use Ufo\EAV\Filters\FilterRow\FilterData;
+
+#[AllowDynamicProperties]
+class StrategistFiller extends AbstractFiller
+{
+    protected IFiller $filler;
+
+    public function __construct(
+        protected EntityManagerInterface $em,
+        protected IFiller $allSpecsFiller,
+        protected IFiller $filteredSpecsFiller,
+    )
+    {
+        $this->changeFiller($this->allSpecsFiller);
+        parent::__construct($em);
+    }
+
+    /**
+     * @param IFiller $filler
+     * @return static
+     */
+    public function changeFiller(IFiller $filler): static
+    {
+        $this->filler = $filler;
+        return $this;
+    }
+
+    public function filterResult(FilterData $filterData): static
+    {
+        ($filterData->empty())
+            ? $this->changeFiller($this->allSpecsFiller)
+            : $this->changeFiller($this->filteredSpecsFiller)
+        ;
+        $this->filler->filterResult($filterData);
+        return $this;
+    }
+
+    public function getSpecIds(): array
+    {
+        return $this->filler->getSpecIds();
+    }
+
+    public function getSpecDetails(): array
+    {
+        return $this->filler->getSpecDetails();
+    }
+
+    public function getSpecs(int $limit, int $offset): array
+    {
+        return $this->filler->getSpecs($limit, $offset);
+    }
+
+    public function getCommonFilters(): ICommonFilter
+    {
+        return $this->filler->getCommonFilters();
+    }
+}
