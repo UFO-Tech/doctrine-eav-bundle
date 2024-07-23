@@ -9,6 +9,8 @@ use Ufo\EAV\Entity\Views\SpecDetailsJson;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
+use function implode;
+
 /**
  * @method SpecDetailsJson|null find($id, $lockMode = null, $lockVersion = null)
  * @method SpecDetailsJson|null findOneBy(array $criteria, array $orderBy = null)
@@ -36,9 +38,23 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
         return $results;
     }
 
+    public function getByParams(string $paramTag, array $values): array
+    {
+        if (!$results = $this->findByParams($paramTag, $values)) {
+            throw new EntityNotFoundException("SpecDetailsJson for '$paramTag = ". implode(', ', $values) ."' is not found" );
+        }
+        return $results;
+    }
+
     public function findByParam(string $paramTag, string|int|bool $value): array
     {
         $query = $this->getQuery($paramTag, $value);
+        return $query->getResult();
+    }
+
+    public function findByParams(string $paramTag, array $values): array
+    {
+        $query = $this->getQuerySomeParams($paramTag, $values);
         return $query->getResult();
     }
 
@@ -48,6 +64,20 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
             ->where("JSON_EXTRACT(p.specValues, :jsonPath) = :value ")
             ->setParameter('jsonPath', '$.'.$paramTag.'.value')
             ->setParameter('value', $value)
+            ->getQuery();
+    }
+
+    protected function getQuerySomeParams(string $paramTag, array $values): Query
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        return $qb
+            ->where($qb->expr()->in(
+                "JSON_UNQUOTE(JSON_EXTRACT(p.specValues, :jsonPath))",
+                ':values'
+            ))
+            ->setParameter('jsonPath', '$.' . $paramTag . '.value')
+            ->setParameter('values', $values)
             ->getQuery();
     }
 
