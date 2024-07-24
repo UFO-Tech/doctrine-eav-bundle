@@ -58,7 +58,7 @@ class SearchCommonFilter extends AbstractCommonFilter
 
         foreach ($specDetails->getSpecValues() as $specValues) {
             if (!$specValues['filter']) continue;
-            $value = Types::castType(Types::from($specValues['value_type']), $specValues['value']);
+            $value = Types::castType(Types::from($specValues['type']), $specValues['value']);
             $this->addParam($specValues['tag'], $specValues['name'])->addValue($specValues['tag'], $value);
         }
         return $this;
