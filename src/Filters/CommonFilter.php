@@ -5,6 +5,7 @@ namespace Ufo\EAV\Filters;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Filters\Abstraction\AbstractCommonFilter;
+use Ufo\EAV\Utils\Types;
 
 use function count;
 use function explode;
@@ -48,7 +49,8 @@ class CommonFilter extends AbstractCommonFilter
                 $this->addValue($specDetails->paramTag, $value);
             }
         } else {
-            $this->addValue($specDetails->paramTag, $specDetails->value);
+            $value = Types::castType(Types::from($specDetails->valueType), $specDetails->value);
+            $this->addValue($specDetails->paramTag, $value);
         }
         return $this;
     }

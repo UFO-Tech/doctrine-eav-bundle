@@ -54,7 +54,7 @@ class AllCommonFilter extends AbstractCommonFilter
         return $this;
     }
 
-    public function addValue(string $paramTag, string $value, int $count = 0): self
+    public function addValue(string $paramTag, string|float|bool|int $value, int $count = 0): self
     {
         $this->values[$paramTag][$value] = $value;
         $this->counts[$paramTag][$value] = $count;

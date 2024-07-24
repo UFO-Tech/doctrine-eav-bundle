@@ -180,6 +180,7 @@ class CreateViewMigrationCommand extends Command
                         'tag', param_tag,
                         'filter', param_filtered,
                         'name', param_name,
+                        'type', value_type,
                         'value', value
                     )
                 ) AS spec_values

@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Filters\Abstraction;
 
 use function array_keys;
+use function is_string;
 use function ksort;
 use function trim;
 
@@ -40,9 +41,9 @@ abstract class AbstractCommonFilter implements ICommonFilter
         return $this->counts[$paramTag][$value] ?? 0;
     }
 
-    public function addValue(string $paramTag, string $value): self
+    public function addValue(string $paramTag, string|int|float|bool $value): self
     {
-        $value = trim($value);
+        $value = is_string($value) ? trim($value) : $value;
         $this->values[$paramTag][$value] = $value;
         if (!isset($this->counts[$paramTag][$value])) {
             $this->counts[$paramTag][$value] = 0;
