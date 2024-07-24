@@ -14,17 +14,6 @@ class AllSpecsFiller extends AbstractFiller
 
     public function filterResult(FilterData $filterData): static
     {
-//        $this->specDetails = $this->viewSpecDetail->findBy([], limit: 50000);
-//        $this->specDetails = $this->viewSpecDetail->experimentalIterator();
-//        $this->specDetails = $this->em->getRepository(CommonParamsFilter::class)->findAll();
-
-//        array_reduce($this->specDetails, function($carry, SpecDetail $specDetail) {
-//            $specId = $specDetail->getSpec()->getId();
-//            if (!in_array($specId, $carry)) {
-//                $carry[] = $specId;
-//            }
-//            return $carry;
-//        }, $this->specIds);
         return $this;
     }
 

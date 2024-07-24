@@ -8,6 +8,8 @@ use Ufo\EAV\Fillers\Interfaces\IFiller;
 use Ufo\EAV\Filters\Abstraction\ICommonFilter;
 use Ufo\EAV\Filters\FilterRow\FilterData;
 
+use function get_class;
+
 #[AllowDynamicProperties]
 class StrategistFiller extends AbstractFiller
 {
@@ -35,10 +37,15 @@ class StrategistFiller extends AbstractFiller
 
     public function filterResult(FilterData $filterData): static
     {
-        ($filterData->empty())
-            ? $this->changeFiller($this->allSpecsFiller)
-            : $this->changeFiller($this->filteredSpecsFiller)
-        ;
+        $baseFiller = get_class($this->allSpecsFiller);
+        $baseFiller2 = get_class($this->filteredSpecsFiller);
+        if ($this->filler instanceof $baseFiller || $this->filler instanceof $baseFiller2) {
+            ($filterData->isEmpty())
+                ? $this->changeFiller($this->allSpecsFiller)
+                : $this->changeFiller($this->filteredSpecsFiller)
+            ;
+        }
+
         $this->filler->filterResult($filterData);
         return $this;
     }

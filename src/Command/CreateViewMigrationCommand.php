@@ -178,6 +178,7 @@ class CreateViewMigrationCommand extends Command
                     param_tag, 
                     JSON_OBJECT(
                         'tag', param_tag,
+                        'filter', param_filtered,
                         'name', param_name,
                         'value', value
                     )

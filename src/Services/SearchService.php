@@ -4,6 +4,7 @@ namespace Ufo\EAV\Services;
 
 use Ufo\EAV\Entity\EavEntity;
 use Ufo\EAV\Exceptions\EavNotFoundException;
+use Ufo\EAV\Filters\FilterRow\FilterData;
 use Ufo\EAV\Traits\EavRepositoryAccess;
 
 class SearchService
@@ -12,19 +13,12 @@ class SearchService
 
     /**
      * @param string $queryString
+     * @param FilterData|null $filterData
      * @return EavEntity[]
-     * @throws EavNotFoundException
      */
-    public function search(string $queryString): array
+    public function search(string $queryString, ?FilterData $filterData = null): array
     {
-        $specsDetail = $this->viewSpecDetail->search($queryString);
-        if (empty($specsDetail)) {
-            throw new EavNotFoundException("Search by '$queryString' not have result");
-        }
-        return $specsDetail;
+        return $this->viewSpecDetailJson->search($queryString, $filterData);
     }
-
-
-
 }
 

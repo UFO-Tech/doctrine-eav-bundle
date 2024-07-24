@@ -35,8 +35,14 @@ class FilterData
         return $this;
     }
 
-    public function empty(): bool
+    public function isEmpty(): bool
     {
         return count($this->params) === 0;
+    }
+
+    public function exclude(string $tag): static
+    {
+        unset($this->params[$tag]);
+        return $this;
     }
 }

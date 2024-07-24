@@ -29,25 +29,6 @@ class FilterService
         $this->filterData = new FilterData();
     }
 
-
-//    protected function fillFilter(Filter $filter, bool $all = false): void
-//    {
-//        $params = $filter->getParams();
-//        foreach ($params as $param) {
-//            $values = $param->getValues();
-//            $filter->setValues($param,
-//               $values->filter(function (Value $v) use ($filter, $all) {
-//
-//                   $res = $v->getSpecs()->filter(function (Spec $spec) use ($filter) {
-//                       return in_array($spec->getId(), $filter->getSpecsIds());
-//                   });
-//                   return $all || $res->count() > 0;
-//
-//               })->toArray()
-//            );
-//        }
-//    }
-
     /**
      * @return Spec[]
      */
@@ -67,6 +48,11 @@ class FilterService
     {
         $this->filterData = $filterData;
         return $this;
+    }
+
+    public function getFillerStrategist(): StrategistFiller
+    {
+        return $this->filler;
     }
 
 }
