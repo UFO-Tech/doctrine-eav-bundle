@@ -36,7 +36,7 @@ abstract class AbstractCommonFilter implements ICommonFilter
         return array_keys($this->values[$paramTag]);
     }
 
-    public function getCounts(string $paramTag, string $value): int
+    public function getCounts(string $paramTag, string|int|float|bool $value): int
     {
         return $this->counts[$paramTag][$value] ?? 0;
     }
