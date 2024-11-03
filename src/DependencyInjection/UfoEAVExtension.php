@@ -2,7 +2,10 @@
 
 namespace Ufo\EAV\DependencyInjection;
 
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonContains;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonExtract;
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonLength;
+use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonObject;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonSearch;
 use Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonUnquote;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -55,6 +58,9 @@ class UfoEAVExtension extends Extension implements PrependExtensionInterface
                         JsonExtract::FUNCTION_NAME => JsonExtract::class,
                         JsonSearch::FUNCTION_NAME => JsonSearch::class,
                         JsonUnquote::FUNCTION_NAME => JsonUnquote::class,
+                        JsonLength::FUNCTION_NAME => JsonLength::class,
+                        JsonContains::FUNCTION_NAME => JsonContains::class,
+                        JsonObject::FUNCTION_NAME => JsonObject::class,
                     ]
                 ]
             ],
