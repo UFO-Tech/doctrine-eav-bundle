@@ -1,6 +1,6 @@
 <?php
 
-namespace Ufo\EAV\Entity\Repository;
+namespace Ufo\EAV\Repositories;
 
 use Doctrine\ORM\EntityRepository;
 use Ufo\EAV\Entity\Views\CommonParamsFilter;

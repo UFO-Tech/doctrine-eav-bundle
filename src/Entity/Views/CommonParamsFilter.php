@@ -5,7 +5,7 @@ namespace Ufo\EAV\Entity\Views;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ufo\EAV\Entity\Repository\CommonParamsFilterRepository;
+use Ufo\EAV\Repositories\CommonParamsFilterRepository;
 
 #[ORM\Entity(repositoryClass: CommonParamsFilterRepository::class, readOnly: true)]
 #[ORM\Table(name: CommonParamsFilter::VIEW_NAME)]
