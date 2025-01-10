@@ -36,7 +36,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected ?Spec $parent = null;
 
-    #[ORM\ManyToMany(targetEntity: Value::class, inversedBy: "specs", cascade: ["persist"], fetch: 'LAZY')]
+    #[ORM\ManyToMany(targetEntity: Value::class, inversedBy: "specs", cascade: ["persist", "remove"], fetch: 'LAZY')]
     #[ORM\JoinTable(name: 'eav_specs_values',
         joinColumns: [new ORM\JoinColumn(name: 'spec_id', referencedColumnName: 'id', onDelete: 'CASCADE')],
         inverseJoinColumns: [new ORM\JoinColumn(name: 'value_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
