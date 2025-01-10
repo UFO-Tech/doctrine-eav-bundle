@@ -11,6 +11,10 @@ services:
             - '../src/UfoEAVBundle.php'
             - '../src/Entity/'
 
+    Ufo\EAV\EventsSubscribers\EmptyProductSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+
     Ufo\EAV\EventsSubscribers\RemoveSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }

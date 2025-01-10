@@ -51,7 +51,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     protected Collection $params;
 
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: Product::class, cascade: ['persist', 'remove'], fetch: 'LAZY', inversedBy: "specifications")]
+        #[ORM\ManyToOne(targetEntity: Product::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "specifications")]
         #[ORM\JoinColumn(name: "eav_id", referencedColumnName: "id", onDelete: 'CASCADE')]
         protected EavEntity $eav,
 
