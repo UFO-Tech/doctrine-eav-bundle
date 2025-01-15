@@ -45,7 +45,7 @@ class AllCommonFilter extends AbstractCommonFilter
         $this->commonParams[] = $commonParam;
         $this->addParam($commonParam->paramTag, $commonParam->paramName);
         if ($commonParam->valueType === 'options') {
-            $values = explode(',', $commonParam->value);
+            $values = explode(', ', $commonParam->value);
             foreach ($values as $value) {
                 $this->addValue($commonParam->paramTag, $value, $commonParam->specCount);
             }

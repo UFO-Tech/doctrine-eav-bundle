@@ -8,6 +8,7 @@ use Ufo\EAV\Filters\FilterRow\FilterValue;
 
 use function explode;
 use function is_null;
+use function is_string;
 use function trim;
 
 class FilterDataFactory
@@ -19,7 +20,10 @@ class FilterDataFactory
         foreach ($data as $paramTag => $values) {
             $filterData->addParam(new FilterParam(trim($paramTag)));
             foreach ($values as $value) {
-                $filterData->getParam($paramTag)->addValue(new FilterValue(trim($value)));
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
+                $filterData->getParam($paramTag)->addValue(new FilterValue($value));
             }
         }
         return $filterData;
