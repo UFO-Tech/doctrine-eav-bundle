@@ -10,6 +10,7 @@ use Ufo\EAV\Utils\Types;
 use function asort;
 use function count;
 use function explode;
+use function is_array;
 use function trim;
 
 class AllCommonFilter extends AbstractCommonFilter
@@ -44,13 +45,13 @@ class AllCommonFilter extends AbstractCommonFilter
     {
         $this->commonParams[] = $commonParam;
         $this->addParam($commonParam->paramTag, $commonParam->paramName);
-        if ($commonParam->valueType === 'options') {
-            $values = explode(', ', $commonParam->value);
-            foreach ($values as $value) {
-                $this->addValue($commonParam->paramTag, $value, $commonParam->specCount);
+
+        $value = Types::from($commonParam->valueType)->castType($commonParam->value);
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                $this->addValue($commonParam->paramTag, $val, $commonParam->specCount);
             }
         } else {
-            $value = Types::castType(Types::from($commonParam->valueType), $commonParam->value);
             $this->addValue($commonParam->paramTag, $value, $commonParam->specCount);
         }
         return $this;

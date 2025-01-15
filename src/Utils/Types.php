@@ -12,12 +12,13 @@ enum Types: string
     case OPTIONS = 'options';
     case STRING = 'string';
 
-    public static function castType(Types $type, string|int|bool $value): string|int|bool|float
+    public function castType(string|int|bool $value): string|int|bool|float|array|null
     {
-        return match ($type) {
+        return match ($this) {
             self::BOOLEAN => (bool)$value,
             self::NUMBER => !str_contains($value, '.') ? (int)$value : (float)$value,
             self::STRING => (string)$value,
+            self::OPTIONS => explode(', ', $value),
             default => $value,
         };
     }

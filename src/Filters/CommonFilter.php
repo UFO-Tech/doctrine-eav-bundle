@@ -9,6 +9,7 @@ use Ufo\EAV\Utils\Types;
 
 use function count;
 use function explode;
+use function is_array;
 
 class CommonFilter extends AbstractCommonFilter
 {
@@ -43,13 +44,12 @@ class CommonFilter extends AbstractCommonFilter
         $this->addSpec($specDetails->getSpec())
             ->addParam($specDetails->paramTag, $specDetails->paramName)
         ;
-        if ($specDetails->valueType === 'options') {
-            $values = explode(',', $specDetails->value);
-            foreach ($values as $value) {
-                $this->addValue($specDetails->paramTag, $value);
+        $value = Types::from($specDetails->valueType)->castType($specDetails->value);
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                $this->addValue($specDetails->paramTag, $val);
             }
         } else {
-            $value = Types::castType(Types::from($specDetails->valueType), $specDetails->value);
             $this->addValue($specDetails->paramTag, $value);
         }
         return $this;
