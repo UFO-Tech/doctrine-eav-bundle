@@ -11,6 +11,7 @@ use Ufo\EAV\Utils\Types;
 use function array_sum;
 use function count;
 use function explode;
+use function is_array;
 use function Symfony\Component\Translation\t;
 
 class SearchCommonFilter extends AbstractCommonFilter
@@ -59,7 +60,13 @@ class SearchCommonFilter extends AbstractCommonFilter
         foreach ($specDetails->getSpecValues() as $specValues) {
             if (!$specValues['filter']) continue;
             $value = Types::from($specValues['type'])->castType($specValues['value']);
-            $this->addParam($specValues['tag'], $specValues['name'])->addValue($specValues['tag'], $value);
+            if (is_array($value)) {
+                foreach ($value as $v) {
+                    $this->addParam($specValues['tag'], $specValues['name'])->addValue($specValues['tag'], $v);
+                }
+            } else {
+                $this->addParam($specValues['tag'], $specValues['name'])->addValue($specValues['tag'], $value);
+            }
         }
         return $this;
     }
