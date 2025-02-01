@@ -11,7 +11,7 @@ use Ufo\EAV\Repositories\CommonParamsFilterRepository;
 #[ORM\Table(name: CommonParamsFilter::VIEW_NAME)]
 readonly class CommonParamsFilter
 {
-    const VIEW_NAME = 'eav_common_params_filter_view';
+    const string VIEW_NAME = 'eav_common_params_filter_view';
 
     #[ORM\Id]
     #[ORM\Column(type: Types::STRING)]

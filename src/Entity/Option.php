@@ -8,7 +8,7 @@ use Ufo\EAV\Repositories\OptionRepository;
 
 #[ORM\Entity(repositoryClass: OptionRepository::class)]
 #[ORM\Table(name: 'eav_options')]
-#[ORM\Index(columns: ["id"], name: "option_id_idx")]
+#[ORM\Index(name: "option_id_idx", columns: ["id"])]
 #[ORM\UniqueConstraint(name: "param_option_unique", columns: ["param", "value"])]
 class Option
 {

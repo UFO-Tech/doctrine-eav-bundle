@@ -12,8 +12,8 @@ use Ufo\EAV\Entity\Value;
 #[ORM\Table(name: 'eav_value_file')]
 class ValueFile extends Value
 {
-    const T_LOCAL = 1;
-    const T_CLOUD = 2;
+    const int T_LOCAL = 1;
+    const int T_CLOUD = 2;
 
     #[ORM\Column(name: "file_val_name", type: Types::STRING)]
     protected string $filename;

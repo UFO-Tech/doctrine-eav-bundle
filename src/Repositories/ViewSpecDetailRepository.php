@@ -28,35 +28,15 @@ class ViewSpecDetailRepository extends EntityRepository
         $orX = $qb->expr()->orX();
 
         foreach ($filterData->getParams() as $k => $param) {
-            $exactValues = [];
-            $likeConditions = $qb->expr()->orX();
-
-            foreach ($param->getValuesArray() as $valueKey => $value) {
-                $exactValues[] = $value;
-                $likeConditions->add(
-                    $qb->expr()->like('e.value', ':like_value' . $k . '_' . $valueKey)
-                );
-                $qb->setParameter(':like_value' . $k . '_' . $valueKey, '%' . $value . '%');
-            }
-
             $orX->add($qb->expr()->andX(
                 $qb->expr()->eq('e.paramTag', ':paramTag' . $k),
-                $qb->expr()->orX(
                     $qb->expr()->andX(
-                        $qb->expr()->neq('e.valueType', ':valueType_options' . $k),
-                        $qb->expr()->in('e.value', ':values' . $k)
-                    ),
-                    $qb->expr()->andX(
-                        $qb->expr()->eq('e.valueType', ':valueType_options' . $k),
-                        $likeConditions
-                    )
+                    $qb->expr()->in('e.value', ':values' . $k)
                 )
             ));
 
             $qb->setParameter(':paramTag' . $k, $param->tag);
-            $qb->setParameter(':values' . $k, $exactValues);
-            $qb->setParameter(':valueType_options' . $k, 'options');
-
+            $qb->setParameter(':values' . $k, $param->getValuesArray());
         }
 
         $qb->where($orX)

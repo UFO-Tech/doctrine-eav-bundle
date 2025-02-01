@@ -10,13 +10,13 @@ use Ufo\EAV\Repositories\ParamRepository;
 
 #[ORM\Entity(repositoryClass: ParamRepository::class)]
 #[ORM\Table(name: 'eav_params')]
-#[ORM\Index(columns: ["tag"], name: "param_tag_idx")]
+#[ORM\Index(name: "param_tag_idx", columns: ["tag"])]
 class Param
 {
     #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "params", cascade: ["persist"], fetch: 'LAZY')]
     protected Collection $specs;
 
-    #[ORM\OneToMany(mappedBy: "param", targetEntity: Value::class, cascade: ["persist"], fetch: 'LAZY')]
+    #[ORM\OneToMany(targetEntity: Value::class, mappedBy: "param", cascade: ["persist"], fetch: 'LAZY')]
     protected Collection $values;
 
     public function __construct(

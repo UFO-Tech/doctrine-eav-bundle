@@ -2,7 +2,6 @@
 
 namespace Ufo\EAV\Entity;
 
-use App\Entity\Product;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -13,7 +12,7 @@ use Ufo\EAV\Repositories\SpecRepository;
 use Ufo\EAV\Traits\SpecValuesAccessors;
 
 #[ORM\Table(name: Spec::TABLE_NAME)]
-#[ORM\Index(columns: ["id"], name: "spec_id_idx", )]
+#[ORM\Index(name: "spec_id_idx", columns: ["id"], )]
 #[ORM\Entity(repositoryClass: SpecRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Spec implements IHaveParamsAccess, IHaveValuesAccess
@@ -21,8 +20,8 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
 
     use SpecValuesAccessors;
 
-    const TABLE_NAME = 'eav_spec';
-    const DEFAULT = 'noname';
+    const string TABLE_NAME = 'eav_spec';
+    const string DEFAULT = 'noname';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,7 +31,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     #[ORM\OneToMany(targetEntity: Spec::class, mappedBy: 'parent', cascade: ["persist"])]
     protected Collection $children;
 
-    #[ORM\ManyToOne(targetEntity: Spec::class, inversedBy: 'children',  cascade: ["persist"])]
+    #[ORM\ManyToOne(targetEntity: Spec::class, cascade: ["persist"], inversedBy: 'children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected ?Spec $parent = null;
 
@@ -51,7 +50,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     protected Collection $params;
 
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: Product::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "specifications")]
+        #[ORM\ManyToOne(targetEntity: EavEntity::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "specifications")]
         #[ORM\JoinColumn(name: "eav_id", referencedColumnName: "id", onDelete: 'CASCADE')]
         protected EavEntity $eav,
 

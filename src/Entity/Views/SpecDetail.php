@@ -14,7 +14,7 @@ use Ufo\EAV\Repositories\ViewSpecDetailRepository;
 #[ORM\Table(name: SpecDetail::VIEW_NAME)]
 readonly class SpecDetail implements IHaveSpecAccess
 {
-    const VIEW_NAME = 'eav_spec_details_view';
+    const string VIEW_NAME = 'eav_spec_details_view';
 
     #[ORM\Id]
     #[ORM\Column(type: Types::STRING)]
@@ -33,7 +33,7 @@ readonly class SpecDetail implements IHaveSpecAccess
     public string $paramTag;
 
     #[ORM\Column(type: Types::BOOLEAN)]
-    public string $paramFiltered;
+    public bool $paramFiltered;
 
     #[ORM\Column(type: Types::STRING)]
     public string $valueType;

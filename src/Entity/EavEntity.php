@@ -20,19 +20,36 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     #[ORM\Column(type: "integer")]
     protected int $id;
 
-    #[ORM\OneToMany(mappedBy: "eav", targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'EAGER')]
+    #[ORM\OneToMany(targetEntity: Spec::class, mappedBy: "eav", cascade: ["persist", "remove"], fetch: 'EAGER')]
     protected Collection $specifications;
 
     #[ORM\OneToOne(targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'main_spec_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected ?Spec $mainSpecification = null;
 
+    #[ORM\ManyToOne(targetEntity: EavCategory::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: 'entities')]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected ?EavCategory $category = null;
+
     public function __construct()
     {
         $this->specifications = new ArrayCollection();
         $this->mainSpecification = $this->addSpecification();
         $this->onPostLoad();
+
     }
+
+    public function getCategory(): ?EavCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?EavCategory $category): static
+    {
+        $this->category = $category;
+        return $this;
+    }
+
     #[ORM\PostLoad]
     public function onPostLoad(): void
     {

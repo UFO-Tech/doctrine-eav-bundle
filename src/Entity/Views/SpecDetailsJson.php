@@ -14,7 +14,7 @@ use Ufo\EAV\Repositories\SpecDetailsJsonRepository;
 #[ORM\Table(name: SpecDetailsJson::VIEW_NAME)]
 class SpecDetailsJson implements IHaveSpecAccess
 {
-    const VIEW_NAME = 'eav_spec_details_json_view';
+    const string VIEW_NAME = 'eav_spec_details_json_view';
 
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]

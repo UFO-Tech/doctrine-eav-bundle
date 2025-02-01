@@ -13,6 +13,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
+use Ufo\EAV\AST\Functions\Mysql\CountSlashes;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -61,6 +62,7 @@ class UfoEAVExtension extends Extension implements PrependExtensionInterface
                         JsonLength::FUNCTION_NAME => JsonLength::class,
                         JsonContains::FUNCTION_NAME => JsonContains::class,
                         JsonObject::FUNCTION_NAME => JsonObject::class,
+                        CountSlashes::FUNCTION_NAME => CountSlashes::class,
                     ]
                 ]
             ],

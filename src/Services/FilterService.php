@@ -8,11 +8,10 @@ use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Fillers\StrategistFiller;
 use Ufo\EAV\Filters\Abstraction\ICommonFilter;
 use Ufo\EAV\Filters\FilterRow\FilterData;
-use Ufo\EAV\Filters\CommonFilter;
 
 class FilterService
 {
-    const DEFAULT_LIMIT = 20;
+    const int DEFAULT_LIMIT = 20;
 
     /**
      * @var SpecDetail[]

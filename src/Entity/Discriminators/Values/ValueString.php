@@ -10,7 +10,7 @@ use Ufo\EAV\Entity\Value;
 #[ORM\Entity]
 class ValueString extends Value
 {
-    private const MAX_SHORT_CONTENT_LENGTH = 255;  // Define your length limit for VARCHAR column
+    private const int MAX_SHORT_CONTENT_LENGTH = 255;  // Define your length limit for VARCHAR column
 
     #[ORM\Column(name: "str_val_short", type: Types::STRING, length: ValueString::MAX_SHORT_CONTENT_LENGTH, nullable: true)]
     protected ?string $contentShort = null;

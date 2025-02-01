@@ -12,7 +12,7 @@ use Doctrine\DBAL\Types\Types as EntityTypes;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'eav_values')]
-#[ORM\Index(columns: ["id", "param", "value_type"], name: "value_id_param_value_type_idx")]
+#[ORM\Index(name: "value_id_param_value_type_idx", columns: ["id", "param", "value_type"])]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "value_type", type: EntityTypes::STRING, enumType: Types::class)]
 #[ORM\DiscriminatorMap([
