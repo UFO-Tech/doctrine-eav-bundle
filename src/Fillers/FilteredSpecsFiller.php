@@ -7,6 +7,7 @@ use Ufo\EAV\Filters\Abstraction\ICommonFilter;
 use Ufo\EAV\Filters\CommonFilter;
 use Ufo\EAV\Filters\FilterRow\FilterData;
 
+use function array_filter;
 use function array_slice;
 
 class FilteredSpecsFiller extends AbstractFiller
@@ -25,8 +26,8 @@ class FilteredSpecsFiller extends AbstractFiller
         return $this->specRepository->getBySpecIds($specIds);
     }
 
-    public function getCommonFilters(): ICommonFilter
+    public function getCommonFilters(?string $skipEnv = null): ICommonFilter
     {
-        return new CommonFilter($this->specDetails);
+        return new CommonFilter($this->specDetails, $skipEnv);
     }
 }

@@ -44,6 +44,9 @@ readonly class SpecDetail implements IHaveSpecAccess
     #[ORM\ManyToOne(targetEntity: Spec::class, fetch: 'LAZY')]
     public Spec $spec;
 
+    #[ORM\Column(type: Types::JSON)]
+    public array $context;
+
     public function getSpec(): Spec
     {
         return $this->spec;

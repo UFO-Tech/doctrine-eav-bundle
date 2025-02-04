@@ -60,4 +60,9 @@ abstract class AbstractCommonFilter implements ICommonFilter
         }
         return $this;
     }
+
+    protected function getContextFilter(): callable
+    {
+        return fn(array $context) => (empty($context) || ($context[$this->skipEnv] ?? true));
+    }
 }

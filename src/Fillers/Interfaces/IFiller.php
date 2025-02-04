@@ -29,5 +29,5 @@ interface IFiller
 
     public function getSpecIds(): array;
 
-    public function getCommonFilters(): ICommonFilter;
+    public function getCommonFilters(?string $skipEnv = null): ICommonFilter;
 }

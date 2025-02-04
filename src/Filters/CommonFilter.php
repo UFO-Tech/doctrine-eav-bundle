@@ -20,7 +20,10 @@ class CommonFilter extends AbstractCommonFilter
 
     protected array $specs = [];
 
-    public function __construct(array $specsDetails = [])
+    public function __construct(
+        array $specsDetails = [],
+        protected ?string $skipEnv = null
+    )
     {
         $this->setSpecsDetails($specsDetails);
     }
@@ -40,11 +43,13 @@ class CommonFilter extends AbstractCommonFilter
 
     public function addSpecDetail(SpecDetail $specDetails): self
     {
+        if (!$this->getContextFilter()($specDetails->context)) return $this;
         $this->specsDetails[] = $specDetails;
         $this->addSpec($specDetails->getSpec())
             ->addParam($specDetails->paramTag, $specDetails->paramName)
         ;
         $value = Types::from($specDetails->valueType)->castType($specDetails->value);
+
         if (is_array($value)) {
             foreach ($value as $val) {
                 $this->addValue($specDetails->paramTag, $val);

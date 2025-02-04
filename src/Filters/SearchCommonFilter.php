@@ -23,7 +23,10 @@ class SearchCommonFilter extends AbstractCommonFilter
 
     protected array $specs = [];
 
-    public function __construct(array $specsDetails = [])
+    public function __construct(
+        array $specsDetails = [],
+        protected ?string $skipEnv = null
+    )
     {
         $this->setSpecsDetails($specsDetails);
     }
@@ -58,7 +61,7 @@ class SearchCommonFilter extends AbstractCommonFilter
         $this->addSpec($specDetails->getSpec());
 
         foreach ($specDetails->getSpecValues() as $specValues) {
-            if (!$specValues['filter']) continue;
+            if (!$specValues['filter'] || !$this->getContextFilter()($specValues['context'])) continue;
             $value = Types::from($specValues['type'])->castType($specValues['value']);
             if (is_array($value)) {
                 foreach ($value as $v) {

@@ -34,4 +34,7 @@ readonly class CommonParamsFilter
 
     #[ORM\Column(type: Types::INTEGER)]
     public int $totalCount;
+
+    #[ORM\Column(type: Types::JSON)]
+    public array $context;
 }

@@ -22,7 +22,8 @@ class AllCommonFilter extends AbstractCommonFilter
 
     public function __construct(
         array $commonParams,
-        protected int $count
+        protected int $count,
+        protected ?string $skipEnv = null
     )
     {
         $this->setCommonParams($commonParams);
@@ -43,10 +44,12 @@ class AllCommonFilter extends AbstractCommonFilter
 
     public function addCommonParam(CommonParamsFilter $commonParam): self
     {
+        if (!$this->getContextFilter()($commonParam->context)) return $this;
         $this->commonParams[] = $commonParam;
         $this->addParam($commonParam->paramTag, $commonParam->paramName);
 
         $value = Types::from($commonParam->valueType)->castType($commonParam->value);
+
         if (is_array($value)) {
             foreach ($value as $val) {
                 $this->addValue($commonParam->paramTag, $val, $commonParam->specCount);
