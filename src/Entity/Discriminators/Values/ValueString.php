@@ -18,9 +18,14 @@ class ValueString extends Value
     #[ORM\Column(name: "str_val_long", type: Types::TEXT, nullable: true)]
     protected ?string $contentLong = null;
 
-    public function __construct(Param $param, string $content)
+    public function __construct(
+        Param $param,
+        string $content,
+        ?string $locale = null,
+        ?Value $baseValue = null,
+    )
     {
-        parent::__construct($param);
+        parent::__construct($param, $locale, $baseValue);
         $this->setContent($content);
     }
 

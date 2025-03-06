@@ -47,8 +47,16 @@ readonly class SpecDetail implements IHaveSpecAccess
     #[ORM\Column(type: Types::JSON)]
     public array $context;
 
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    public ?string $locale;
+
     public function getSpec(): Spec
     {
         return $this->spec;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
     }
 }

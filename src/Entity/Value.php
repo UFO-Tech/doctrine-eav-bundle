@@ -5,14 +5,16 @@ namespace Ufo\EAV\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ufo\EAV\Repositories\ValueRepository;
 use Ufo\EAV\Utils\DiscriminatorMapper;
 use Ufo\EAV\Utils\Types;
 use Ufo\EAV\Utils\ValueEntityMap;
 use Doctrine\DBAL\Types\Types as EntityTypes;
 
-#[ORM\Entity]
+#[ORM\Entity(ValueRepository::class)]
 #[ORM\Table(name: 'eav_values')]
-#[ORM\Index(name: "value_id_param_value_type_idx", columns: ["id", "param", "value_type"])]
+#[ORM\Index(name: "value_locale_idx", columns: ["locale"])]
+#[ORM\Index(name: "value_id_param_value_type_idx", columns: ["id", "param", "value_type", "locale"])]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "value_type", type: EntityTypes::STRING, enumType: Types::class)]
 #[ORM\DiscriminatorMap([
@@ -34,11 +36,19 @@ abstract class Value
 
     /**
      * @param Param $param
+     * @param string|null $locale
      */
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Param::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "values")]
         #[ORM\JoinColumn(name: "param", referencedColumnName: "tag", onDelete: 'CASCADE')]
-        protected Param $param
+        protected Param $param,
+
+        #[ORM\Column(type: EntityTypes::STRING, length: 5, nullable: true)]
+        protected ?string $locale = null,
+
+        #[ORM\ManyToOne(targetEntity: Value::class, fetch: 'LAZY')]
+        #[ORM\JoinColumn(name: "base_value_id", referencedColumnName: "id", nullable: true, onDelete: 'SET NULL')]
+        protected ?self $baseValue = null
     )
     {
         $this->specs = new ArrayCollection();
@@ -73,6 +83,11 @@ abstract class Value
      */
     abstract public function getContent(): mixed;
 
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
     /**
      * Creates a value entity based on the value type determined by the provided value.
      *
@@ -80,9 +95,19 @@ abstract class Value
      * @param mixed $value The value itself.
      * @return Value Returns an instance of the appropriate value class.
      */
-    public static function create(Param $param, mixed $value): Value
+    public static function create(
+        Param $param,
+        mixed $value,
+        ?string $locale = null,
+        ?Value $baseValue = null
+    ): Value
     {
-        return new (DiscriminatorMapper::valueClass($value))($param, $value);
+        return new (DiscriminatorMapper::valueClass($value))($param, $value, $locale, $baseValue);
+    }
+
+    public function getBaseValue(): ?Value
+    {
+        return $this->baseValue;
     }
 
 }

@@ -15,10 +15,12 @@ class ValueBoolean extends Value
     public function __construct(
         Param $param,
         #[ORM\Column(name: "bool_val", type: Types::BOOLEAN)]
-        protected bool $content
+        protected bool $content,
+        ?string $locale = null,
+        ?Value $baseValue = null,
     )
     {
-        parent::__construct($param);
+        parent::__construct($param, $locale, $baseValue);
     }
 
     public function getContent(): bool

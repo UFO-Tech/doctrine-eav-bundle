@@ -4,6 +4,7 @@ namespace Ufo\EAV\Services;
 
 use Ufo\EAV\Entity\Option;
 use Ufo\EAV\Entity\Param;
+use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Value;
 use Ufo\EAV\Exceptions\EavNotFoundException;
 use Ufo\EAV\Traits\EavRepositoryAccess;
@@ -28,25 +29,54 @@ class EavFactoryService
         return $param;
     }
 
-    public function getOption(Param $param, string $value): Option
+    public function getOption(
+        Param $param,
+        string $value,
+        ?string $locale = null,
+        mixed $baseValue = null,
+    ): Option
     {
         try {
-            $option = $this->optionRepo->get($param, $value);
+            $option = $this->optionRepo->get($param, $value, $locale);
         } catch (EavNotFoundException) {
-            $option = new Option($param, $value);
+            $baseOption = null;
+            if ($locale) {
+                try {
+                    $baseOption = $this->optionRepo->get($param, $baseValue);
+                } catch (EavNotFoundException) {}
+            }
+            $option = new Option($param, $value, $locale, $baseOption);
             $this->em->persist($option);
         }
         return $option;
     }
 
-    public function valueForParam(string $param, mixed $value): Value
+    public function valueForParam(
+        Spec $spec,
+        string $param,
+        mixed $value,
+        ?string $locale = null,
+    ): Value
     {
-        return Value::create($this->getParam($param), $value);
+        $param = $this->getParam($param);
+        $baseValue = null;
+        if ($locale) {
+            $baseValue = $this->valueRepo->get($spec, $param);
+        }
+        $value = Value::create($param, $value, $locale, $baseValue);
+        $this->em->persist($value);
+        $this->em->flush();
+        return $value;
     }
 
-    public function optionForParam(string $param, string $value): Option
+    public function optionForParam(
+        string $param,
+        string $value,
+        ?string $locale = null,
+        mixed $baseValue = null,
+    ): Option
     {
-        return $this->getOption($this->getParam($param), $value);
+        return $this->getOption($this->getParam($param), $value, $locale, $baseValue);
     }
 
 

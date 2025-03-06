@@ -12,12 +12,13 @@ use Ufo\EAV\Entity\Views\SpecDetailsJson;
 use Ufo\EAV\Repositories\OptionRepository;
 use Ufo\EAV\Repositories\ParamRepository;
 use Ufo\EAV\Repositories\SpecDetailsJsonRepository;
+use Ufo\EAV\Repositories\ValueRepository;
 use Ufo\EAV\Repositories\ViewSpecDetailRepository;
 
 trait EavRepositoryAccess
 {
     protected ParamRepository|EntityRepository $paramRepo;
-    protected EntityRepository $valueRepo;
+    protected ValueRepository|EntityRepository $valueRepo;
     protected OptionRepository|EntityRepository $optionRepo;
 
     protected ViewSpecDetailRepository|EntityRepository $viewSpecDetail;

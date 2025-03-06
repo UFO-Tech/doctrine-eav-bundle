@@ -2,14 +2,13 @@
 
 namespace Ufo\EAV\Repositories;
 
-use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Query;
-use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Entity\Views\SpecDetailsJson;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Ufo\EAV\Filters\FilterRow\FilterData;
+use Ufo\EAV\Services\LocaleService;
 
 use function implode;
 use function strtolower;
@@ -22,7 +21,10 @@ use function strtolower;
  */
 class SpecDetailsJsonRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        protected LocaleService $localeService
+    )
     {
         parent::__construct($registry, SpecDetailsJson::class);
     }
@@ -63,11 +65,19 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
 
     protected function getQuery(string $paramTag, string|int|bool $value): Query
     {
-        return $this->createQueryBuilder('p')
-            ->where("JSON_EXTRACT(p.specValues, :jsonPath) = :value ")
-            ->setParameter('jsonPath', '$.'.$paramTag.'.value')
-            ->setParameter('value', $value)
-            ->getQuery();
+         $qb = $this->createQueryBuilder('p')
+            ->where("JSON_EXTRACT(p.specValues, :jsonPath) = :value")
+            ->andWhere("JSON_EXTRACT(p.specValues, :jsonPath) IS NOT NULL") // Виключає NULL-рядки
+            ->setParameter('jsonPath', '$.' . $paramTag . '.value')
+            ->setParameter('value', $value);
+
+         if ($this->localeService->isDefaultLocale()) {
+             $qb->andWhere('p.locale IS NULL');
+         } else {
+             $qb->andWhere('p.locale = :locale')->setParameter('locale', $this->localeService->getLocale());
+         }
+
+        return $qb->getQuery();
     }
 
     protected function getQuerySomeParams(string $paramTag, array $values): Query
@@ -113,6 +123,14 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
                      ->setParameter('exactQuery', $exactQuery)
                      ->setParameter('partialQuery', $partialQuery)
                      ->setParameter('jsonPath', '$.*.value');
+
+        if ($this->localeService->isDefaultLocale()) {
+            $queryBuilder->andWhere('sd.locale is NULL');
+        } else {
+            $queryBuilder->andWhere('sd.locale = :locale')
+                         ->setParameter('locale', $this->localeService->getLocale());
+        }
+
 
         if ($filterData !== null && !$filterData->isEmpty()) {
             foreach ($filterData->getParams() as $param) {

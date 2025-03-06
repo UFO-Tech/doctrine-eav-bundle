@@ -37,4 +37,8 @@ readonly class CommonParamsFilter
 
     #[ORM\Column(type: Types::JSON)]
     public array $context;
+
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    public ?string $locale;
+
 }

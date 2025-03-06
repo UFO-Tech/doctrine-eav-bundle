@@ -27,7 +27,7 @@ trait SpecValuesAccessors
         return $values;
     }
 
-    public function getValue(string $paramTag)
+    public function getValue(string $paramTag): mixed
     {
         $value = null;
         $this->getValues()->filter(function (Value $val) use ($paramTag, &$value) {
@@ -42,7 +42,7 @@ trait SpecValuesAccessors
     {
         $values = $this->getValues();
         $values->filter(function (Value $val) use ($value, $replace) {
-            if ($val->getParam() === $value->getParam()) {
+            if ($val->getParam() === $value->getParam() && $val->getLocale() === $value->getLocale()) {
                 if ($replace) {
                     $this->removeValue($val);
                     RemoveSubscriber::add($val);

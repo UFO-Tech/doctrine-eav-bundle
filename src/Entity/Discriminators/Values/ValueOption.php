@@ -22,12 +22,12 @@ class ValueOption extends Value
 
     public function __construct(
         Param $param,
-
-        protected array $content
-
+        protected array $content,
+        ?string $locale = null,
+        ?Value $baseValue = null,
     )
     {
-        parent::__construct($param);
+        parent::__construct($param, $locale, $baseValue);
         $this->options = new ArrayCollection();
         foreach ($this->content as $option) {
             if ($option instanceof Option){

@@ -30,5 +30,10 @@ services:
 
     Ufo\EAV\Fillers\Interfaces\IFiller $allSpecsFiller: '@Ufo\EAV\Fillers\AllSpecsFiller'
     Ufo\EAV\Fillers\Interfaces\IFiller $filteredSpecsFiller: '@Ufo\EAV\Fillers\FilteredSpecsFiller'
+
+    Ufo\EAV\Services\LocaleService:
+        arguments:
+            $defaultLocale: '%kernel.default_locale%'
+#            $localeAwareServices: '@Symfony\Component\Translation\LocaleSwitcher'
     
  

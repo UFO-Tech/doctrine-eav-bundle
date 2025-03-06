@@ -121,6 +121,12 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
         return $this->parent;
     }
 
+    public function setParent(Spec $parent): static
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
     /**
      * @param Collection $children
      * @return static

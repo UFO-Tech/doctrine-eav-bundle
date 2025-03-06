@@ -32,10 +32,13 @@ class ValueFile extends Value
         protected string $url,
 
         #[ORM\Column(name: "file_val_storage", type: Types::INTEGER)]
-        protected int    $storageType = self::T_LOCAL
+        protected int    $storageType = self::T_LOCAL,
+
+        ?string $locale = null,
+        ?Value $baseValue = null,
     )
     {
-        parent::__construct($param);
+        parent::__construct($param, $locale, $baseValue);
         $this->filename = $file->getClientOriginalName();
         $this->mimeType = $file->getMimeType();
         $this->size = $file->getSize();

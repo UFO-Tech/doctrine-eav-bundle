@@ -2,25 +2,41 @@
 
 namespace Ufo\EAV\Repositories;
 
-use Doctrine\ORM\EntityRepository;
-use Ufo\EAV\Entity\Views\CommonParamsFilter;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Filters\FilterRow\FilterData;
+use Ufo\EAV\Services\LocaleService;
 
 use function array_column;
+use function array_merge;
 use function count;
 
-class ViewSpecDetailRepository extends EntityRepository
+class ViewSpecDetailRepository extends ServiceEntityRepository
 {
-
-
-    public function all(): array
+    public function __construct(
+        ManagerRegistry $registry,
+        protected LocaleService $localeService
+    )
     {
-        return $this->findAll();
+        parent::__construct($registry, SpecDetail::class);
+    }
+
+    public function findAll(): array
+    {
+        return $this->findBy($this->localeService->getLocaleCriteria());
+    }
+
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
+    {
+        return parent::findBy($this->localeService->addLocaleToCriteria($criteria), $orderBy, $limit, $offset);
     }
 
     public function getByFilter(FilterData $filterData): array
     {
+        $locale = $this->localeService->getLocale();
+        $isDefaultLocale = $this->localeService->isDefaultLocale();
+
         $qb = $this->createQueryBuilder('e')
                    ->select('e.specId')
                    ->groupBy('e.specId');
@@ -30,9 +46,7 @@ class ViewSpecDetailRepository extends EntityRepository
         foreach ($filterData->getParams() as $k => $param) {
             $orX->add($qb->expr()->andX(
                 $qb->expr()->eq('e.paramTag', ':paramTag' . $k),
-                    $qb->expr()->andX(
-                    $qb->expr()->in('e.value', ':values' . $k)
-                )
+                $qb->expr()->in('e.value', ':values' . $k)
             ));
 
             $qb->setParameter(':paramTag' . $k, $param->tag);
@@ -43,32 +57,16 @@ class ViewSpecDetailRepository extends EntityRepository
            ->having('COUNT(DISTINCT e.paramTag) = :paramCount')
            ->setParameter(':paramCount', count($filterData->getParams()));
 
+        // Додаємо облік локалізації
+        if (!$isDefaultLocale) {
+            $qb->andWhere('(e.locale = :locale OR e.locale IS NULL)')
+               ->setParameter('locale', $locale);
+        } else {
+            $qb->andWhere('e.locale IS NULL');
+        }
+
         $result = $qb->getQuery()->getArrayResult();
         return array_column($result, 'specId');
     }
 
-    public function experimentalIterator(): array
-    {
-        $iterator = $this->createQueryBuilder('v')->getQuery()->toIterable();
-
-        $res = [];
-        $i = 0;
-        foreach ($iterator as $specDetail) {
-            $i++;
-            if ($i === 30000) {
-                $i =0;
-                $this->getEntityManager()->clear();
-            }
-            $res[] = $specDetail;
-        }
-        return $res;
-    }
-
-    public function test()
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder()
-             ->from(CommonParamsFilter::class, 'f');
-        $q = $qb->getQuery()->toIterable();
-        return $qb->getQuery()->getResult();
-    }
 }

@@ -12,13 +12,13 @@ class OptionRepository extends EntityRepository
     /**
      * @throws EavNotFoundException
      */
-    public function get(Param $param, string $value): Option
+    public function get(Param $param, string $value, ?string $locale = null): Option
     {
-        if (!$option = $this->findOneBy(['param' => $param, 'value' => $value])) {
+        if (!$option = $this->findOneBy(['param' => $param, 'value' => $value, 'locale' => $locale])) {
             try {
                 $option = $this->fromIdentityMap($param,  $value);
             } catch (\Throwable) {
-                throw new EavNotFoundException("Option '{$value}' for param '{$param->getTag()}' is not found");
+                throw new EavNotFoundException("Option '{$value}' for param '{$param->getTag()}' in locale '{$locale}' not found");
             }
         }
         return $option;

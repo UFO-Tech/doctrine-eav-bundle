@@ -17,11 +17,17 @@ class SpecDetailsJson implements IHaveSpecAccess
     const string VIEW_NAME = 'eav_spec_details_json_view';
 
     #[ORM\Id]
+    #[ORM\Column(type: Types::STRING)]
+    public string $uniqueId;
+
     #[ORM\Column(type: Types::INTEGER)]
     protected int $specId;
 
     #[ORM\Column(type: Types::STRING)]
     protected string $specName;
+
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    public ?string $locale;
 
     #[ORM\Column(type: Types::JSON)]
     protected array $specValues;
@@ -61,4 +67,8 @@ class SpecDetailsJson implements IHaveSpecAccess
         return $this->spec;
     }
 
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
 }

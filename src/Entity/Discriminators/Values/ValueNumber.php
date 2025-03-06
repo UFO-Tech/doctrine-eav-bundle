@@ -17,9 +17,14 @@ class ValueNumber extends Value
     #[ORM\Column(name: "num_val_scale", type: Types::INTEGER)]
     protected int $scale = 0;
 
-    public function __construct(Param $param, int|float $number = 0)
+    public function __construct(
+        Param $param,
+        int|float $number = 0,
+        ?string $locale = null,
+        ?Value $baseValue = null,
+    )
     {
-        parent::__construct($param);
+        parent::__construct($param, $locale, $baseValue);
         $this->setContent($number);
     }
 
