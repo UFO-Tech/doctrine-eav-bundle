@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Ufo\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Ufo\DoctrineBehaviors\ORM\Tree\TreeTrait;
 use Ufo\EAV\Entity\EavCategory;
 
@@ -32,10 +33,10 @@ abstract class EavCategoryRepository extends ServiceEntityRepository
         return $this->findOneBy(['slug' => $slug]) ?? throw new EntityNotFoundException();
     }
 
-    public function findCategoryByFilters(array $appliedFilters): ?EavCategory
+    public function findCategoryByFilters(array $appliedFilters, ?string $locale = null): ?EavCategory
     {
         $category = null;
-        $categories = $this->categoryByFilters($appliedFilters);
+        $categories = $this->categoryByFilters($appliedFilters, $locale);
         foreach ($categories as $leafCategory) {
             $this->getTree($leafCategory->getRootMaterializedPath());
             $categoryFilters = $leafCategory->getFilters();
@@ -44,6 +45,7 @@ abstract class EavCategoryRepository extends ServiceEntityRepository
             $isMatch = $this->isCategoryMatch($categoryFilters, $aggregateAppliedFilters);
             if ($isMatch) {
                 $category = $leafCategory;
+                $category->setCurrentLocale($locale);
                 break;
             }
         }
@@ -75,15 +77,29 @@ abstract class EavCategoryRepository extends ServiceEntityRepository
         return $filters;
     }
 
-    protected function categoryByFilters(array $appliedFilters): array
+    protected function categoryByFilters(array $appliedFilters, ?string $locale = null): array
     {
         $qb = $this->createQueryBuilder('c');
+
+        // Додаємо мультимовність (тільки якщо локаль передана)
+        if ($locale) {
+            $qb->leftJoin('c.translations', 'ct', 'WITH', 'ct.locale = :locale')
+               ->setParameter('locale', $locale);
+        }
+
         foreach ($appliedFilters as $index => $filter) {
             $jsonValue = json_encode([$filter->paramTag => [$filter->value]], JSON_UNESCAPED_UNICODE);
 
-            $qb->orWhere(
-                "JSON_CONTAINS(c.filters, :filter{$index}) = 1"
-            )->setParameter("filter{$index}", $jsonValue);
+            // Якщо є локалізовані фільтри – шукаємо і в `ct.filters`
+            if ($locale !== null) {
+                $qb->orWhere(
+                    "(JSON_CONTAINS(c.filters, :filter{$index}) = 1 OR JSON_CONTAINS(ct.filters, :filter{$index}) = 1)"
+                );
+            } else {
+                $qb->orWhere("JSON_CONTAINS(c.filters, :filter{$index}) = 1");
+            }
+
+            $qb->setParameter("filter{$index}", $jsonValue);
         }
 
         $qb->addSelect('COUNT_SLASHES(c.materializedPath) AS HIDDEN depth')

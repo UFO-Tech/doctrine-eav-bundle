@@ -95,20 +95,25 @@ abstract class EavCategory implements TreeNodeInterface, TranslatableInterface
         return $this->id;
     }
 
-    public function changeFilters(array $filters): static
+    public function changeFilters(array $filters, ?string $locale = null): static
     {
-        $this->filters = $filters;
+        is_null($locale) || $this->getDefaultLocale() === $locale
+            ? $this->filters = $filters
+            : $this->translate($locale)->changeFilters($filters);
+        
         return $this;
     }
 
-    public function getFilters(): array
+    public function getFilters(?string $locale = null): array
     {
         /**
          * @var static $parent
          */
         $parent = $this->parentNode;
-        $parentFilter = $parent?->getFilters() ?? [];
-        return array_merge($parentFilter, $this->filters);
+        $parentFilter = $parent?->getFilters($locale) ?? [];
+
+        $thisFilter = $this->translate($locale)?->getFilters() ?? $this->filters;
+        return array_merge($parentFilter, $thisFilter);
     }
 
     public function getName(?string $locale = null): string
