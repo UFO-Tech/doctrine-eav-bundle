@@ -67,95 +67,88 @@ class CreateViewMigrationCommand extends Command
                 UNION ALL
                 SELECT s.id, s.parent_id, s.name
                 FROM eav_spec s
-                         INNER JOIN SpecHierarchy sh ON s.parent_id = sh.id
+                INNER JOIN SpecHierarchy sh ON s.parent_id = sh.id
             ),
-                           SpecValues AS (
-                               SELECT
-                                   sh.id AS spec_id,
-                                   p.tag AS param_tag,
-                                   p.name AS param_name,
-                                   v.value_type,
-                                   v.locale,
-                                   CASE
-                                       WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
-                                       WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
-                                       WHEN v.value_type = 'boolean' THEN v.bool_val
-                                       WHEN v.value_type = 'options' THEN (
-                                           SELECT GROUP_CONCAT(o.value SEPARATOR ', ')
-                                           FROM eav_value_options vo
-                                                    JOIN eav_options o ON vo.param_option_id = o.id
-                                           WHERE vo.value_option_id = v.id
-                                       )
-                                       ELSE NULL
-                                       END AS value
-                               FROM SpecHierarchy sh
-                                        LEFT JOIN eav_specs_values sv ON sh.id = sv.spec_id
-                                        LEFT JOIN eav_values v ON sv.value_id = v.id
-                                        LEFT JOIN eav_params p ON v.param = p.tag
-                           ),
-                           TranslatedOptions AS (
-                               -- Отримуємо всі унікальні пари (дефолтне значення → переклад)
-                               SELECT DISTINCT
-                                   o1.value AS default_value,
-                                   o2.value AS translated_value,
-                                   o2.locale
-                               FROM eav_options o1
-                                        JOIN eav_options o2 ON o1.id = o2.base_option_id
-                               WHERE o2.locale IS NOT NULL
-                           ),
-                           Locales AS (
-                               SELECT DISTINCT locale
-                               FROM eav_values
-                               WHERE locale IS NOT NULL
-                           ),
-                           FinalValues AS (
-                               -- 1. Значення для дефолтної локалі (NULL)
-                               SELECT DISTINCT
-                                   v.spec_id,
-                                   v.param_tag,
-                                   v.value,
-                                   v.value_type,
-                                   NULL AS locale
-                               FROM SpecValues v
-                               WHERE v.locale IS NULL
-            
-                               UNION ALL
-            
-                               -- 2. Значення для кожної локалі: якщо є своє, беремо його, якщо немає — підтягнуте з іншого товару
-                               SELECT DISTINCT
-                                   v.spec_id,
-                                   v.param_tag,
-                                   COALESCE(vl.value, t.translated_value, v.value) AS value,
-                                   COALESCE(vl.value_type, v.value_type) AS value_type,
-                                   l.locale
-                               FROM Locales l
-                                        CROSS JOIN SpecValues v
-                                        LEFT JOIN SpecValues vl
-                                                  ON v.spec_id = vl.spec_id
-                                                      AND v.param_tag = vl.param_tag
-                                                      AND vl.locale = l.locale
-                                        LEFT JOIN TranslatedOptions t
-                                                  ON v.value = t.default_value
-                                                      AND t.locale = l.locale
-                               WHERE v.locale IS NULL
-                           )
-            
+            SpecValues AS (
+                SELECT
+                    sh.id AS spec_id,
+                    p.tag AS param_tag,
+                    p.name AS param_name,
+                     p.filtered as filtered, 
+                    v.value_type,
+                    p.json_schema AS context,
+                    v.locale,
+                    CASE
+                        WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
+                        WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
+                        WHEN v.value_type = 'boolean' THEN v.bool_val
+                        WHEN v.value_type = 'options' THEN (
+                            SELECT GROUP_CONCAT(o.value SEPARATOR ', ')
+                            FROM eav_value_options vo
+                            JOIN eav_options o ON vo.param_option_id = o.id
+                            WHERE vo.value_option_id = v.id
+                        )
+                        ELSE NULL
+                    END AS value
+                FROM SpecHierarchy sh
+                LEFT JOIN eav_specs_values sv ON sh.id = sv.spec_id
+                LEFT JOIN eav_values v ON sv.value_id = v.id
+                LEFT JOIN eav_params p ON v.param = p.tag
+            ),
+            ParentValues AS (
+                SELECT DISTINCT
+                    sh.id AS spec_id,
+                    p.tag AS param_tag,
+                    p.name AS param_name,
+                    p.filtered as filtered, 
+                    p.json_schema AS context,
+                    v.value_type,
+                    CASE
+                        WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
+                        WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
+                        WHEN v.value_type = 'boolean' THEN v.bool_val
+                        WHEN v.value_type = 'options' THEN (
+                            SELECT GROUP_CONCAT(o.value SEPARATOR ', ')
+                            FROM eav_value_options vo
+                            JOIN eav_options o ON vo.param_option_id = o.id
+                            WHERE vo.value_option_id = v.id
+                        )
+                        ELSE NULL
+                    END AS value,
+                    v.locale
+                FROM SpecHierarchy sh
+                LEFT JOIN eav_specs_values sv ON sh.parent_id = sv.spec_id
+                LEFT JOIN eav_values v ON sv.value_id = v.id
+                LEFT JOIN eav_params p ON v.param = p.tag
+                WHERE sh.parent_id IS NOT NULL
+            ),
+            FinalValues AS (
+                SELECT sv.spec_id, sv.param_tag, sv.param_name, sv.filtered, sv.value_type, sv.value, sv.locale, sv.context
+                FROM SpecValues sv
+                UNION ALL
+                SELECT pv.spec_id, pv.param_tag, pv.param_name, pv.filtered, pv.value_type, pv.value, pv.locale, pv.context
+                FROM ParentValues pv
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM SpecValues sv
+                    WHERE sv.spec_id = pv.spec_id AND sv.param_tag = pv.param_tag
+                )
+            )
             SELECT DISTINCT
-                MD5(CONCAT(sh.id, '-', p.tag, '-', fv.value, '-', COALESCE(fv.locale, 'default'))) AS unique_id,
+                MD5(CONCAT(fv.spec_id, '-', fv.param_tag, '-', fv.value, '-', COALESCE(fv.locale, 'default'))) AS unique_id,
                 sh.id AS spec_id,
                 sh.name AS spec_name,
-                p.name AS param_name,
-                p.tag AS param_tag,
-                p.filtered AS param_filtered,
+                fv.param_name,
+                fv.param_tag,
+                fv.filtered AS param_filtered,
+                fv.context AS context,
                 fv.value_type,
                 fv.value,
-                p.json_schema AS context,
                 fv.locale
             FROM SpecHierarchy sh
-                     LEFT JOIN eav_params p ON TRUE
-                     LEFT JOIN FinalValues fv ON sh.id = fv.spec_id AND p.tag = fv.param_tag
+            LEFT JOIN FinalValues fv ON sh.id = fv.spec_id
             WHERE fv.value IS NOT NULL
-            ORDER BY sh.id, p.tag, fv.locale;
+            ORDER BY sh.id, fv.param_tag, fv.locale;
+
         \");
         
         \$this->addSql(\"CREATE VIEW $commonParams AS

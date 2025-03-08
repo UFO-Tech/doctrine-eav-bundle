@@ -16,8 +16,6 @@ use function strtolower;
 /**
  * @method SpecDetailsJson|null find($id, $lockMode = null, $lockVersion = null)
  * @method SpecDetailsJson|null findOneBy(array $criteria, array $orderBy = null)
- * @method SpecDetailsJson[] findAll()
- * @method SpecDetailsJson[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class SpecDetailsJsonRepository extends ServiceEntityRepository
 {
@@ -27,6 +25,16 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
     )
     {
         parent::__construct($registry, SpecDetailsJson::class);
+    }
+
+    public function findAll(): array
+    {
+        return $this->findBy($this->localeService->getLocaleCriteria());
+    }
+
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
+    {
+        return parent::findBy($this->localeService->addLocaleToCriteria($criteria), $orderBy, $limit, $offset);
     }
 
     public function getOneByParam(string $paramTag, string|int|bool $value): SpecDetailsJson
