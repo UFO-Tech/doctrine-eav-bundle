@@ -179,7 +179,7 @@ class CreateViewMigrationCommand extends Command
                          s.value_type != 'file'
                        AND p.filtered = TRUE
                      GROUP BY
-                         s.param_tag, s.param_name, s.value, s.value_type, s.locale
+                         s.param_tag, s.param_name, s.value, s.value_type, s.locale, s.context
                  ) AS s
             WHERE
                 s.total_count >= (SELECT COUNT(DISTINCT id) FROM eav_spec)
