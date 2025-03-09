@@ -1,7 +1,7 @@
 {
     "name": "ufo-tech/doctrine-eav-bundle",
     "description": "The DoctrineEAVBundle provides a seamless integration of the Entity-Attribute-Value (EAV) model with Doctrine ORM within the Symfony framework",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "license": "MIT",
     "authors": [
         {

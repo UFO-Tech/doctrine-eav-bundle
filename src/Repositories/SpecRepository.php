@@ -59,49 +59,39 @@ class SpecRepository extends ServiceEntityRepository
 
         // Запит для опцій
         $optionsQB = $this->getEntityManager()->createQueryBuilder()
-            ->from(ValueOption::class, 'vo')
-            ->select('vo')
-//            ->select('vo, COALESCE(opTrans.value, opAlt.value, op.value) AS option_value')
-            ->join('vo.options', 'op')
+                          ->from(ValueOption::class, 'vo')
+                          ->select('vo')
+                          ->join('vo.options', 'op')
 
-            // Основний переклад (прямий зв'язок)
-            ->leftJoin('vo.options', 'opTrans', 'WITH', 'opTrans.param = op.param AND opTrans.value = op.value AND opTrans.locale = :locale')
+                          ->leftJoin('vo.options', 'opTrans', 'WITH', 'opTrans.param = op.param AND opTrans.value = op.value AND opTrans.locale = :locale')
+                          ->leftJoin(Option::class, 'opAlt', 'WITH', 'opAlt.param = op.param AND opAlt.value = op.value AND opAlt.locale = :locale')
 
-            // Переклад з іншої спеки через сутність Option
-            ->leftJoin(Option::class, 'opAlt', 'WITH', 'opAlt.param = op.param AND opAlt.value = op.value AND opAlt.locale = :locale')
-
-            ->join('vo.specs', 'os')
-            ->setParameter('locale', $locale);
+                          ->join('vo.specs', 'os')
+                          ->setParameter('locale', $locale);
 
 
         // Основний запит для спеків
         $specsQB = $this->getEntityManager()->createQueryBuilder()
-            ->from(Spec::class, 's')
-            ->select([
-                's',
-                'p',
-                'eav',
-            ])
-            ->join('s.eav', 'eav')
-            ->join('s.params', 'p')
+                        ->from(Spec::class, 's')
+                        ->select([
+                            's',
+                            'p',
+                            'eav',
+                        ])
+                        ->leftJoin('s.eav', 'eav')
+                        ->leftJoin('s.params', 'p')
 
-            ->leftJoin(ValueNumber::class, 'vNum', 'WITH', 'vNum.param = p AND vNum.locale IS NULL')
-            ->leftJoin(ValueNumber::class, 'vNumTrans', 'WITH', 'vNumTrans.param = p AND vNumTrans.locale = :locale')
+                        ->leftJoin('s.values', 'vDefault', 'WITH', 'vDefault.param = p AND vDefault.locale IS NULL')
+                        ->leftJoin('s.values', 'vTrans', 'WITH', 'vTrans.param = p AND vTrans.locale = :locale')
 
-            ->leftJoin(ValueString::class, 'vStr', 'WITH', 'vStr.param = p AND vStr.locale IS NULL')
-            ->leftJoin(ValueString::class, 'vStrTrans', 'WITH', 'vStrTrans.param = p AND vStrTrans.locale = :locale')
-
-            ->leftJoin(ValueBoolean::class, 'vBool', 'WITH', 'vBool.param = p AND vBool.locale IS NULL')
-            ->leftJoin(ValueBoolean::class, 'vBoolTrans', 'WITH', 'vBoolTrans.param = p AND vBoolTrans.locale = :locale')
-
-            ->setParameter('locale', $locale);
+                        ->setParameter('locale', $locale)
+        ;
 
         // Фільтрація за локаллю
         if ($isDefaultLocale) {
-            $specsQB->where('vNum.id IS NOT NULL OR vStr.id IS NOT NULL OR vBool.id IS NOT NULL');
+            $specsQB->where('vDefault.id IS NOT NULL');
         } else {
-            $specsQB->where('(vNumTrans.id IS NOT NULL OR vStrTrans.id IS NOT NULL OR vBoolTrans.id IS NOT NULL)')
-                    ->orWhere('(vNum.id IS NOT NULL OR vStr.id IS NOT NULL OR vBool.id IS NOT NULL)');
+            $specsQB->where('vTrans.id IS NOT NULL OR vDefault.id IS NOT NULL');
         }
 
         // Фільтрація за ID
@@ -113,6 +103,4 @@ class SpecRepository extends ServiceEntityRepository
         $optionsQB->getQuery()->getResult();
         return $specsQB;
     }
-
-
 }
