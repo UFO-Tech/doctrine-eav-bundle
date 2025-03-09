@@ -62,6 +62,7 @@ class CreateViewMigrationCommand extends Command
         $commonParams = CommonParamsFilter::VIEW_NAME;
         return "\$this->addSql(\"CREATE VIEW $specDetail AS
             WITH RECURSIVE SpecHierarchy AS (
+                -- Створення ієрархії спеків
                 SELECT s.id, s.parent_id, s.name
                 FROM eav_spec s
                 UNION ALL
@@ -69,11 +70,15 @@ class CreateViewMigrationCommand extends Command
                 FROM eav_spec s
                          INNER JOIN SpecHierarchy sh ON s.parent_id = sh.id
             ),
+            
                            SpecValues AS (
+                               -- Основні значення для кожного `spec_id`
                                SELECT
                                    sh.id AS spec_id,
                                    p.tag AS param_tag,
                                    p.name AS param_name,
+                                   p.filtered AS filtered,
+                                   p.json_schema AS context,
                                    v.value_type,
                                    v.locale,
                                    CASE
@@ -93,6 +98,43 @@ class CreateViewMigrationCommand extends Command
                                         LEFT JOIN eav_values v ON sv.value_id = v.id
                                         LEFT JOIN eav_params p ON v.param = p.tag
                            ),
+            
+                           ParentValues AS (
+                               -- Наслідування значень від батьківського `spec_id`
+                               SELECT DISTINCT
+                                   sh.id AS spec_id,
+                                   p.tag AS param_tag,
+                                   p.name AS param_name,
+                                   p.filtered AS filtered,
+                                   p.json_schema AS context,
+                                   v.value_type,
+                                   v.locale,
+                                   CASE
+                                       WHEN v.value_type = 'number' THEN v.num_val / POWER(10, v.num_val_scale)
+                                       WHEN v.value_type = 'string' THEN COALESCE(v.str_val_short, v.str_val_long)
+                                       WHEN v.value_type = 'boolean' THEN v.bool_val
+                                       WHEN v.value_type = 'options' THEN (
+                                           SELECT GROUP_CONCAT(o.value SEPARATOR ', ')
+                                           FROM eav_value_options vo
+                                                    JOIN eav_options o ON vo.param_option_id = o.id
+                                           WHERE vo.value_option_id = v.id
+                                       )
+                                       ELSE NULL
+                                       END AS value
+                               FROM SpecHierarchy sh
+                                        LEFT JOIN eav_specs_values sv ON sh.parent_id = sv.spec_id
+                                        LEFT JOIN eav_values v ON sv.value_id = v.id
+                                        LEFT JOIN eav_params p ON v.param = p.tag
+                               WHERE sh.parent_id IS NOT NULL
+                           ),
+            
+                           Locales AS (
+                               -- Витягуємо всі доступні локалі
+                               SELECT DISTINCT locale
+                               FROM eav_values
+                               WHERE locale IS NOT NULL
+                           ),
+            
                            TranslatedOptions AS (
                                -- Отримуємо всі унікальні пари (дефолтне значення → переклад)
                                SELECT DISTINCT
@@ -103,11 +145,7 @@ class CreateViewMigrationCommand extends Command
                                         JOIN eav_options o2 ON o1.id = o2.base_option_id
                                WHERE o2.locale IS NOT NULL
                            ),
-                           Locales AS (
-                               SELECT DISTINCT locale
-                               FROM eav_values
-                               WHERE locale IS NOT NULL
-                           ),
+            
                            FinalValues AS (
                                -- 1. Значення для дефолтної локалі (NULL)
                                SELECT DISTINCT
@@ -121,7 +159,7 @@ class CreateViewMigrationCommand extends Command
             
                                UNION ALL
             
-                               -- 2. Значення для кожної локалі: якщо є своє, беремо його, якщо немає — підтягнуте з іншого товару
+                               -- 2. Значення для кожної локалі: якщо є своє, беремо його, якщо немає — fallback на дефолтну мову
                                SELECT DISTINCT
                                    v.spec_id,
                                    v.param_tag,
@@ -138,10 +176,21 @@ class CreateViewMigrationCommand extends Command
                                                   ON v.value = t.default_value
                                                       AND t.locale = l.locale
                                WHERE v.locale IS NULL
+            
+                               UNION ALL
+            
+                               -- 3. Додаємо значення з ParentValues, якщо вони ще не існують у дочірніх спеків
+                               SELECT pv.spec_id, pv.param_tag, pv.value, pv.value_type, pv.locale
+                               FROM ParentValues pv
+                               WHERE NOT EXISTS (
+                                   SELECT 1 FROM SpecValues sv
+                                   WHERE sv.spec_id = pv.spec_id AND sv.param_tag = pv.param_tag
+                               )
                            )
             
+            -- **Остаточний вибір значень**
             SELECT DISTINCT
-                MD5(CONCAT(sh.id, '-', p.tag, '-', fv.value, '-', COALESCE(fv.locale, 'default'))) AS unique_id,
+                MD5(CONCAT(fv.spec_id, '-', fv.param_tag, '-', fv.value, '-', COALESCE(fv.locale, 'default'))) AS unique_id,
                 sh.id AS spec_id,
                 sh.name AS spec_name,
                 p.name AS param_name,
