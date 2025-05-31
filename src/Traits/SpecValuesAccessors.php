@@ -9,6 +9,8 @@ use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Value;
 use Ufo\EAV\EventsSubscribers\RemoveSubscriber;
 
+use function is_null;
+
 trait SpecValuesAccessors
 {
 
@@ -27,15 +29,17 @@ trait SpecValuesAccessors
         return $values;
     }
 
-    public function getValue(string $paramTag): mixed
+    public function getValue(string $paramTag, ?string $locale = null): mixed
     {
         $value = null;
-        $this->getValues()->filter(function (Value $val) use ($paramTag, &$value) {
-            if ($val->getParam()->getTag() === $paramTag) {
-                $value = $val->getContent();
-            }
+        $defaultValue = null;
+        $this->getValues()->filter(function (Value $val) use ($paramTag, &$value, &$defaultValue, $locale) {
+            if ($val->getParam()->getTag() !== $paramTag) return;
+            if (is_null($val->getLocale())) $defaultValue = $val->getContent();
+            if ($val->getLocale() !== $locale) return;
+            $value = $val->getContent();
         });
-        return $value;
+        return $value ?? $defaultValue;
     }
 
     public function setValue(Value $value, bool $replace = true): static

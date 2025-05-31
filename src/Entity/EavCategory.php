@@ -97,9 +97,9 @@ abstract class EavCategory implements TreeNodeInterface, TranslatableInterface
 
     public function changeFilters(array $filters, ?string $locale = null): static
     {
-        is_null($locale) || $this->getDefaultLocale() === $locale
-            ? $this->filters = $filters
-            : $this->translate($locale)->changeFilters($filters);
+        $this->needTranslate($locale)
+            ? $this->translate($locale)->changeFilters($filters)
+            : $this->filters = $filters;
         
         return $this;
     }
@@ -112,20 +112,29 @@ abstract class EavCategory implements TreeNodeInterface, TranslatableInterface
         $parent = $this->parentNode;
         $parentFilter = $parent?->getFilters($locale) ?? [];
 
-        $thisFilter = $this->translate($locale)?->getFilters() ?? $this->filters;
-        return array_merge($parentFilter, $thisFilter);
+        $thisFilter = $this->needTranslate($locale) ? $this->translate($locale)->getFilters() : $this->filters;
+        return array_merge($parentFilter, $thisFilter ?? []);
     }
 
     public function getName(?string $locale = null): string
     {
-        return $this->translate($locale)?->getName() ?? $this->name;
+        $name = $this->needTranslate($locale)
+            ? $this->translate($locale)->getName()
+            : $this->name
+        ;
+        return $name ?? $this->name;
     }
 
     public function rename(string $name, ?string $locale = null): static
     {
-        is_null($locale) || $this->getDefaultLocale() === $locale
-            ? $this->name = $name
-            : $this->translate($locale)->rename($name);
+        $this->needTranslate($locale)
+            ? $this->translate($locale)->rename($name)
+            : $this->name = $name;
         return $this;
+    }
+
+    protected function needTranslate(?string $locale = null): bool
+    {
+        return !is_null($locale) && $this->getDefaultLocale() !== $locale;
     }
 }

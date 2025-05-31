@@ -9,7 +9,6 @@ use Ufo\EAV\Filters\FilterRow\FilterData;
 use Ufo\EAV\Services\LocaleService;
 
 use function array_column;
-use function array_merge;
 use function count;
 
 class ViewSpecDetailRepository extends ServiceEntityRepository

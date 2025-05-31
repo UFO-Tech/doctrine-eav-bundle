@@ -39,7 +39,7 @@ abstract class EavCategoryRepository extends ServiceEntityRepository
         $categories = $this->categoryByFilters($appliedFilters, $locale);
         foreach ($categories as $leafCategory) {
             $this->getTree($leafCategory->getRootMaterializedPath());
-            $categoryFilters = $leafCategory->getFilters();
+            $categoryFilters = $leafCategory->getFilters($locale);
             $aggregateAppliedFilters = $this->aggregateAppliedFilters($appliedFilters);
 
             $isMatch = $this->isCategoryMatch($categoryFilters, $aggregateAppliedFilters);
