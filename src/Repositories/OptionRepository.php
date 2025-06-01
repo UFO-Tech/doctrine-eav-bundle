@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Repositories;
 
 use Doctrine\ORM\EntityRepository;
+use Throwable;
 use Ufo\EAV\Entity\Option;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Exceptions\EavNotFoundException;
@@ -17,7 +18,7 @@ class OptionRepository extends EntityRepository
         if (!$option = $this->findOneBy(['param' => $param, 'value' => $value, 'locale' => $locale])) {
             try {
                 $option = $this->fromIdentityMap($param,  $value);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 throw new EavNotFoundException("Option '{$value}' for param '{$param->getTag()}' in locale '{$locale}' not found");
             }
         }

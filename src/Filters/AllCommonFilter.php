@@ -23,7 +23,7 @@ class AllCommonFilter extends AbstractCommonFilter
     public function __construct(
         array $commonParams,
         protected int $count,
-        protected ?string $skipEnv = null
+        protected ?string $env = null
     )
     {
         $this->setCommonParams($commonParams);

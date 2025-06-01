@@ -3,6 +3,7 @@
 namespace Ufo\EAV\Repositories;
 
 use Doctrine\ORM\EntityRepository;
+use Throwable;
 use Ufo\EAV\Entity\Param;
 use Ufo\EAV\Exceptions\EavNotFoundException;
 
@@ -26,7 +27,7 @@ class ParamRepository extends EntityRepository
         if (!$param = $this->findOneBy(['tag' => $tag])) {
             try {
                 $param = $this->fromIdentityMap($tag);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 throw new EavNotFoundException("Param with tag '{$tag}' is not found");
             }
         }
