@@ -22,7 +22,7 @@ class CommonFilter extends AbstractCommonFilter
 
     public function __construct(
         array $specsDetails = [],
-        protected ?string $skipEnv = null
+        protected ?string $env = null
     )
     {
         $this->setSpecsDetails($specsDetails);

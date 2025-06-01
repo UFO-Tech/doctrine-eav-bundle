@@ -65,8 +65,8 @@ class StrategistFiller extends AbstractFiller
         return $this->filler->getSpecs($limit, $offset);
     }
 
-    public function getCommonFilters(?string $skipEnv = null): ICommonFilter
+    public function getCommonFilters(?string $env = null): ICommonFilter
     {
-        return $this->filler->getCommonFilters($skipEnv);
+        return $this->filler->getCommonFilters($env);
     }
 }

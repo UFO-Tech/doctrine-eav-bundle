@@ -23,11 +23,11 @@ class AllSpecsFiller extends AbstractFiller
         return $this->specRepository->getList($criteria, $orderBy, $limit, $offset);
     }
 
-    public function getCommonFilters(?string $skipEnv = null): ICommonFilter
+    public function getCommonFilters(?string $env = null): ICommonFilter
     {
         $count = $this->specRepository->count($this->criteria);
         $commonParams = $this->em->getRepository(CommonParamsFilter::class)->findAll();
-        return new AllCommonFilter($commonParams, $count, $skipEnv);
+        return new AllCommonFilter($commonParams, $count, $env);
     }
 
 }

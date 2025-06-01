@@ -26,8 +26,8 @@ class FilteredSpecsFiller extends AbstractFiller
         return $this->specRepository->getBySpecIds($specIds);
     }
 
-    public function getCommonFilters(?string $skipEnv = null): ICommonFilter
+    public function getCommonFilters(?string $env = null): ICommonFilter
     {
-        return new CommonFilter($this->specDetails, $skipEnv);
+        return new CommonFilter($this->specDetails, $env);
     }
 }
