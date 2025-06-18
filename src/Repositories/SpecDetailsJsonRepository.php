@@ -92,14 +92,21 @@ class SpecDetailsJsonRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('p');
 
-        return $qb
-            ->where($qb->expr()->in(
-                "JSON_UNQUOTE(JSON_EXTRACT(p.specValues, :jsonPath))",
-                ':values'
-            ))
-            ->setParameter('jsonPath', '$.' . $paramTag . '.value')
-            ->setParameter('values', $values)
-            ->getQuery();
+        $qb->where($qb->expr()->in(
+            "JSON_UNQUOTE(JSON_EXTRACT(p.specValues, :jsonPath))",
+            ':values'
+        ))
+           ->setParameter('jsonPath', '$.' . $paramTag . '.value')
+           ->setParameter('values', $values);
+
+        if ($this->localeService->isDefaultLocale()) {
+            $qb->andWhere('p.locale IS NULL');
+        } else {
+            $qb->andWhere('p.locale = :locale')
+               ->setParameter('locale', $this->localeService->getLocale());
+        }
+
+        return $qb->getQuery();
     }
 
     /**
