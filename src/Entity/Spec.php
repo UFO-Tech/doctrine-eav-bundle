@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Interfaces\IHaveParamsAccess;
 use Ufo\EAV\Interfaces\IHaveValuesAccess;
 use Ufo\EAV\Repositories\SpecRepository;
+use Ufo\EAV\Traits\ArticleHolder;
 use Ufo\EAV\Traits\SpecValuesAccessors;
 
 #[ORM\Table(name: Spec::TABLE_NAME)]
@@ -18,7 +19,7 @@ use Ufo\EAV\Traits\SpecValuesAccessors;
 class Spec implements IHaveParamsAccess, IHaveValuesAccess
 {
 
-    use SpecValuesAccessors;
+    use SpecValuesAccessors, ArticleHolder;
 
     const string TABLE_NAME = 'eav_spec';
     const string DEFAULT = 'noname';
@@ -55,9 +56,12 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
         protected EavEntity $eav,
 
         #[ORM\Column(type: Types::STRING, length: 255)]
-        protected string $name = self::DEFAULT
+        protected string $name = self::DEFAULT,
+
+        string $article = ''
     )
     {
+        $this->changeArticle($article);
         $this->values = new ArrayCollection();
         $this->params = new ArrayCollection();
         $this->children = new ArrayCollection();
@@ -138,9 +142,9 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
         return $this;
     }
 
-    public function addChildren(string $name = self::DEFAULT): Spec
+    public function addChildren(string $name = self::DEFAULT, string $article = ''): Spec
     {
-        $child = new Spec($this->getEav(), $name);
+        $child = new Spec($this->getEav(), $name, $article);
         $this->children->add($child);
         return $child;
     }

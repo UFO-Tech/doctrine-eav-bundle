@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ufo\EAV\Interfaces\IHaveParamsAccess;
 use Ufo\EAV\Interfaces\IHaveValuesAccess;
+use Ufo\EAV\Traits\ArticleHolder;
 use Ufo\EAV\Traits\SpecValuesAccessors;
 
 
@@ -13,7 +14,7 @@ use Ufo\EAV\Traits\SpecValuesAccessors;
 #[ORM\HasLifecycleCallbacks]
 abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
 {
-    use SpecValuesAccessors;
+    use SpecValuesAccessors, ArticleHolder;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,17 +25,20 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     protected Collection $specifications;
 
     #[ORM\OneToOne(targetEntity: Spec::class, cascade: ["persist", "remove"], fetch: 'EAGER')]
-    #[ORM\JoinColumn(name: 'main_spec_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'main_spec_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     protected ?Spec $mainSpecification = null;
 
     #[ORM\ManyToOne(targetEntity: EavCategory::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: 'entities')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     protected ?EavCategory $category = null;
 
-    public function __construct()
+    public function __construct(
+        string $article = '',
+    )
     {
+        $this->changeArticle($article);
         $this->specifications = new ArrayCollection();
-        $this->mainSpecification = $this->addSpecification();
+        $this->mainSpecification = $this->addSpecification(article: $article);
         $this->onPostLoad();
 
     }
@@ -69,9 +73,9 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
         return $this->specifications;
     }
 
-    public function addSpecification(string $name = Spec::DEFAULT): Spec
+    public function addSpecification(string $name = Spec::DEFAULT, string $article = ''): Spec
     {
-        $spec = new Spec($this, $name);
+        $spec = new Spec($this, $name, $article);
         $this->specifications->add($spec);
         return $spec;
     }
