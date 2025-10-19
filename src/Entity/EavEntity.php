@@ -33,12 +33,14 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     protected ?EavCategory $category = null;
 
     public function __construct(
+        #[ORM\Column(type: "string", length: 233)]
+        protected string $name,
         string $article = '',
     )
     {
         $this->changeArticle($article);
         $this->specifications = new ArrayCollection();
-        $this->mainSpecification = $this->addSpecification(article: $article);
+        $this->mainSpecification = $this->addSpecification($this->name, article: $article);
         $this->onPostLoad();
 
     }
@@ -57,6 +59,9 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     #[ORM\PostLoad]
     public function onPostLoad(): void
     {
+        if (!$this->mainSpecification) {
+            $this->mainSpecification = $this->addSpecification($this->name, article: $this->article);
+        }
         $this->state = $this->mainSpecification;
     }
 
@@ -76,6 +81,20 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
     public function addSpecification(string $name = Spec::DEFAULT, string $article = ''): Spec
     {
         $spec = new Spec($this, $name, $article);
+        $main = false;
+        if ($this->article === $article) {
+            $this->mainSpecification = $spec;
+        }
+        /**
+         * @var Spec $existing
+         */
+        foreach ($this->specifications as $existing) {
+            if ($existing->getArticle() === $article) {
+                $this->specifications->removeElement($existing);
+            } elseif ($existing->getParent()?->getArticle() === $article) {
+                $existing->setParent($spec);
+            }
+        }
         $this->specifications->add($spec);
         return $spec;
     }
@@ -97,4 +116,15 @@ abstract class EavEntity implements IHaveParamsAccess, IHaveValuesAccess
         $this->state = $mainSpecification;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function rename(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
 }

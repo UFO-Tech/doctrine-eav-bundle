@@ -4,16 +4,12 @@ namespace Ufo\EAV\Repositories;
 
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Ufo\EAV\Entity\Discriminators\Values\ValueBoolean;
-use Ufo\EAV\Entity\Discriminators\Values\ValueNumber;
 use Ufo\EAV\Entity\Discriminators\Values\ValueOption;
-use Ufo\EAV\Entity\Discriminators\Values\ValueString;
 use Ufo\EAV\Entity\Option;
 use Ufo\EAV\Entity\Spec;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ufo\EAV\Services\LocaleService;
-use Ufo\EAV\Utils\ValueEntityMap;
 
 use function array_map;
 use function is_null;

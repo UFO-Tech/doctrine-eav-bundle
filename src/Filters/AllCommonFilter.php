@@ -5,7 +5,7 @@ namespace Ufo\EAV\Filters;
 use Ufo\EAV\Entity\Views\CommonParamsFilter;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Filters\Abstraction\AbstractCommonFilter;
-use Ufo\EAV\Utils\Types;
+use Ufo\EAV\Utils\DiscriminatorType;
 
 use function asort;
 use function count;
@@ -48,7 +48,7 @@ class AllCommonFilter extends AbstractCommonFilter
         $this->commonParams[] = $commonParam;
         $this->addParam($commonParam->paramTag, $commonParam->paramName);
 
-        $value = Types::from($commonParam->valueType)->castType($commonParam->value);
+        $value = DiscriminatorType::from($commonParam->valueType)->castType($commonParam->value);
 
         if (is_array($value)) {
             foreach ($value as $val) {

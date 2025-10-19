@@ -5,30 +5,33 @@ namespace Ufo\EAV\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ufo\EAV\Entity\Discriminators\Values\ValueBoolean;
+use Ufo\EAV\Entity\Discriminators\Values\ValueFile;
+use Ufo\EAV\Entity\Discriminators\Values\ValueNumber;
+use Ufo\EAV\Entity\Discriminators\Values\ValueOption;
+use Ufo\EAV\Entity\Discriminators\Values\ValueString;
 use Ufo\EAV\Repositories\ValueRepository;
-use Ufo\EAV\Utils\DiscriminatorMapper;
-use Ufo\EAV\Utils\Types;
-use Ufo\EAV\Utils\ValueEntityMap;
-use Doctrine\DBAL\Types\Types as EntityTypes;
+use Ufo\EAV\Utils\DiscriminatorType;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(ValueRepository::class)]
 #[ORM\Table(name: 'eav_values')]
 #[ORM\Index(name: "value_locale_idx", columns: ["locale"])]
 #[ORM\Index(name: "value_id_param_value_type_idx", columns: ["id", "param", "value_type", "locale"])]
 #[ORM\InheritanceType("SINGLE_TABLE")]
-#[ORM\DiscriminatorColumn(name: "value_type", type: EntityTypes::STRING, enumType: Types::class)]
+#[ORM\DiscriminatorColumn(name: "value_type", type: Types::STRING, enumType: DiscriminatorType::class)]
 #[ORM\DiscriminatorMap([
-    Types::BOOLEAN->value   => ValueEntityMap::BOOLEAN->value,
-    Types::FILE->value      => ValueEntityMap::FILE->value,
-    Types::NUMBER->value    => ValueEntityMap::NUMBER->value,
-    Types::OPTIONS->value   => ValueEntityMap::OPTIONS->value,
-    Types::STRING->value    => ValueEntityMap::STRING->value,
+    DiscriminatorType::BOOLEAN->value => ValueBoolean::class,
+    DiscriminatorType::FILE->value    => ValueFile::class,
+    DiscriminatorType::NUMBER->value  => ValueNumber::class,
+    DiscriminatorType::OPTIONS->value => ValueOption::class,
+    DiscriminatorType::STRING->value  => ValueString::class,
 ])]
 abstract class Value
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: EntityTypes::INTEGER)]
+    #[ORM\Column(type: Types::INTEGER)]
     protected int $id;
 
     #[ORM\ManyToMany(targetEntity: Spec::class, mappedBy: "values", cascade: ['persist'], fetch: 'LAZY')]
@@ -36,14 +39,15 @@ abstract class Value
 
     /**
      * @param Param $param
-     * @param string|null $locale
+     * @param ?string $locale
+     * @param ?Value $baseValue
      */
     public function __construct(
         #[ORM\ManyToOne(targetEntity: Param::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "values")]
         #[ORM\JoinColumn(name: "param", referencedColumnName: "tag", onDelete: 'CASCADE')]
         protected Param $param,
 
-        #[ORM\Column(type: EntityTypes::STRING, length: 5, nullable: true)]
+        #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
         protected ?string $locale = null,
 
         #[ORM\ManyToOne(targetEntity: Value::class, fetch: 'LAZY')]
@@ -102,7 +106,7 @@ abstract class Value
         ?Value $baseValue = null
     ): Value
     {
-        return new (DiscriminatorMapper::valueClass($value))($param, $value, $locale, $baseValue);
+        return new (DiscriminatorType::valueClass($value))($param, $value, $locale, $baseValue);
     }
 
     public function getBaseValue(): ?Value

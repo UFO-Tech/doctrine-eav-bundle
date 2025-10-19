@@ -33,7 +33,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     protected Collection $children;
 
     #[ORM\ManyToOne(targetEntity: Spec::class, cascade: ["persist"], inversedBy: 'children')]
-    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     protected ?Spec $parent = null;
 
     #[ORM\ManyToMany(targetEntity: Value::class, inversedBy: "specs", cascade: ["persist", "remove"], fetch: 'LAZY')]
@@ -51,7 +51,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
     protected Collection $params;
 
     public function __construct(
-        #[ORM\ManyToOne(targetEntity: EavEntity::class, cascade: ['persist'], fetch: 'LAZY', inversedBy: "specifications")]
+        #[ORM\ManyToOne(targetEntity: EavEntity::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: "specifications")]
         #[ORM\JoinColumn(name: "eav_id", referencedColumnName: "id", onDelete: 'CASCADE')]
         protected EavEntity $eav,
 
@@ -65,7 +65,7 @@ class Spec implements IHaveParamsAccess, IHaveValuesAccess
         $this->values = new ArrayCollection();
         $this->params = new ArrayCollection();
         $this->children = new ArrayCollection();
-        if (($mainSpec = $this->eav->getMainSpecification()) !== $this) {
+        if (($mainSpec = $this->eav?->getMainSpecification()) !== $this && $mainSpec?->getArticle() !== $article) {
             $this->parent = $mainSpec;
         }
         $this->onPostLoad();

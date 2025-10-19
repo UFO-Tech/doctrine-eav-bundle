@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Ufo\EAV\AST\Functions\Mysql\CountSlashes;
 use Ufo\EAV\AST\Functions\Mysql\PowerFunction;
+use Ufo\EAV\DBAL\DiscriminatorTypeEnumType;
+use Ufo\EAV\Utils\DiscriminatorType;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -44,7 +46,13 @@ class UfoEAVExtension extends Extension implements PrependExtensionInterface
         $dir = __DIR__ . '/../Entity';
         $container->loadFromExtension('doctrine', [
             'dbal' => [
-                'schema_filter' => '~^(?!.*_view$)~'
+                'schema_filter' => '~^(?!.*_view$)~',
+                'types' => [
+                    DiscriminatorType::class => DiscriminatorTypeEnumType::class,
+                ],
+                'mapping_types' => [
+                    'enum' => 'string'
+                ]
             ],
             'orm' => [
                 'mappings' => [

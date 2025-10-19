@@ -17,13 +17,18 @@ class EavFactoryService
         string $tag,
         ?string $name = null,
         bool $filtered = true,
-        array $jsonSchema = []
+        array $context = []
     ): Param
     {
         try {
             $param = $this->paramRepo->get($tag);
         } catch (EavNotFoundException) {
-            $param = new Param($tag, $name, $filtered, $jsonSchema);
+            $param = new Param(
+                $tag,
+                name: $name,
+                filtered: $filtered,
+                context: $context
+            );
             $this->em->persist($param);
         }
         return $param;

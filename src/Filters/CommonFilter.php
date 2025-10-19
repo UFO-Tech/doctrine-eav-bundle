@@ -5,7 +5,7 @@ namespace Ufo\EAV\Filters;
 use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Filters\Abstraction\AbstractCommonFilter;
-use Ufo\EAV\Utils\Types;
+use Ufo\EAV\Utils\DiscriminatorType;
 
 use function count;
 use function explode;
@@ -48,7 +48,7 @@ class CommonFilter extends AbstractCommonFilter
         $this->addSpec($specDetails->getSpec())
             ->addParam($specDetails->paramTag, $specDetails->paramName)
         ;
-        $value = Types::from($specDetails->valueType)->castType($specDetails->value);
+        $value = DiscriminatorType::from($specDetails->valueType)->castType($specDetails->value);
 
         if (is_array($value)) {
             foreach ($value as $val) {

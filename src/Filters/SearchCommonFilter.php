@@ -6,7 +6,7 @@ use Ufo\EAV\Entity\Spec;
 use Ufo\EAV\Entity\Views\SpecDetail;
 use Ufo\EAV\Entity\Views\SpecDetailsJson;
 use Ufo\EAV\Filters\Abstraction\AbstractCommonFilter;
-use Ufo\EAV\Utils\Types;
+use Ufo\EAV\Utils\DiscriminatorType;
 
 use function array_sum;
 use function count;
@@ -62,7 +62,7 @@ class SearchCommonFilter extends AbstractCommonFilter
 
         foreach ($specDetails->getSpecValues() as $specValues) {
             if (!$specValues['filter'] || !$this->getContextFilter()($specValues['context'])) continue;
-            $value = Types::from($specValues['type'])->castType($specValues['value']);
+            $value = DiscriminatorType::from($specValues['type'])->castType($specValues['value']);
             if (is_array($value)) {
                 foreach ($value as $v) {
                     $this->addParam($specValues['tag'], $specValues['name'])->addValue($specValues['tag'], $v);
